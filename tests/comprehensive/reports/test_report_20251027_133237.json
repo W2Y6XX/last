@@ -1,0 +1,245 @@
+{
+  "report_id": "test_20251027_133235_5395",
+  "test_session_id": "5f0af40e-2968-407d-a41d-f2bd984c87ad",
+  "environment": "development",
+  "start_time": "2025-10-27T13:32:35.395510",
+  "end_time": "2025-10-27T13:32:37.073423",
+  "total_duration": 1.677913,
+  "summary": {
+    "total_tests": 4,
+    "total_passed": 4,
+    "total_failed": 0,
+    "total_skipped": 0,
+    "success_rate": 100.0
+  },
+  "suite_results": [
+    {
+      "suite_name": "agent_tests",
+      "total_tests": 4,
+      "passed_tests": 4,
+      "failed_tests": 0,
+      "skipped_tests": 0,
+      "success_rate": 100.0,
+      "duration": 1.677113,
+      "start_time": "2025-10-27T13:32:35.396204",
+      "end_time": "2025-10-27T13:32:37.073317",
+      "results": [
+        {
+          "test_id": "test_20251027_133235_5396",
+          "test_name": "meta_agent",
+          "test_suite": "agent_tests",
+          "status": "passed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:32:35.396251",
+          "end_time": "2025-10-27T13:32:35.396832",
+          "duration": 0.000581,
+          "details": {
+            "tasks_analyzed": 3,
+            "analysis_results": [
+              {
+                "task_id": "73de9c49-0ae3-4628-90d5-e89f44f06da2",
+                "complexity_score": 0.3,
+                "requires_decomposition": false,
+                "estimated_time": 540,
+                "analysis_time": 1.0728836059570312e-05
+              },
+              {
+                "task_id": "a22f0146-6977-4d7c-8d99-1b848501e157",
+                "complexity_score": 0.3,
+                "requires_decomposition": false,
+                "estimated_time": 540,
+                "analysis_time": 3.814697265625e-06
+              },
+              {
+                "task_id": "c62c76cc-4e9a-437d-b356-bd0393348ce9",
+                "complexity_score": 0.9999999999999999,
+                "requires_decomposition": true,
+                "estimated_time": 1799,
+                "analysis_time": 2.384185791015625e-06
+              }
+            ],
+            "average_analysis_time": 5.6425730387369794e-06,
+            "complexity_scores": [
+              0.3,
+              0.3,
+              0.9999999999999999
+            ],
+            "average_complexity": 0.5333333333333333
+          },
+          "error_message": null,
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "agent",
+            "ai"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_133235_5396",
+          "test_name": "task_decomposer",
+          "test_suite": "agent_tests",
+          "status": "passed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:32:35.396919",
+          "end_time": "2025-10-27T13:32:35.397088",
+          "duration": 0.000169,
+          "details": {
+            "decomposition_successful": true,
+            "subtasks_generated": 4,
+            "decomposition_time": 5.0067901611328125e-06,
+            "subtask_details": [
+              {
+                "name": "数据收集",
+                "type": "data_collection",
+                "priority": 1
+              },
+              {
+                "name": "数据预处理",
+                "type": "preprocessing",
+                "priority": 2
+              },
+              {
+                "name": "分析执行",
+                "type": "analysis",
+                "priority": 3
+              },
+              {
+                "name": "结果验证",
+                "type": "validation",
+                "priority": 4
+              }
+            ],
+            "dependencies": [
+              {
+                "from": "数据收集",
+                "to": "数据预处理"
+              },
+              {
+                "from": "数据预处理",
+                "to": "分析执行"
+              },
+              {
+                "from": "分析执行",
+                "to": "结果验证"
+              }
+            ]
+          },
+          "error_message": null,
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "agent",
+            "ai"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_133235_5397",
+          "test_name": "coordinator",
+          "test_suite": "agent_tests",
+          "status": "passed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:32:35.397147",
+          "end_time": "2025-10-27T13:32:35.397402",
+          "duration": 0.000255,
+          "details": {
+            "coordination_successful": true,
+            "agents_coordinated": 3,
+            "coordination_time": 8.821487426757812e-06,
+            "execution_plan": [
+              {
+                "step": 1,
+                "agent_id": "agent_1",
+                "task_type": "analysis",
+                "estimated_start_time": 0,
+                "estimated_duration": 600
+              },
+              {
+                "step": 2,
+                "agent_id": "agent_2",
+                "task_type": "processing",
+                "estimated_start_time": 300,
+                "estimated_duration": 600
+              },
+              {
+                "step": 3,
+                "agent_id": "agent_3",
+                "task_type": "validation",
+                "estimated_start_time": 600,
+                "estimated_duration": 600
+              }
+            ],
+            "resource_allocation": {
+              "agent_1": {
+                "cpu_allocation": 0.5,
+                "memory_allocation": "512MB",
+                "priority_level": 1
+              },
+              "agent_2": {
+                "cpu_allocation": 0.5,
+                "memory_allocation": "512MB",
+                "priority_level": 2
+              },
+              "agent_3": {
+                "cpu_allocation": 0.5,
+                "memory_allocation": "512MB",
+                "priority_level": 3
+              }
+            }
+          },
+          "error_message": null,
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "agent",
+            "ai"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_133235_5397",
+          "test_name": "llm_integration",
+          "test_suite": "agent_tests",
+          "status": "passed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:32:35.397462",
+          "end_time": "2025-10-27T13:32:37.073048",
+          "duration": 1.675586,
+          "details": {
+            "llm_client_available": true,
+            "configuration_valid": true,
+            "mock_request_successful": true,
+            "response_time": 8.58306884765625e-06,
+            "mock_response": {
+              "response": "这是对提示词 '测试提示词...' 的模拟响应",
+              "tokens_used": 21,
+              "model": "mock_model",
+              "success": true,
+              "latency": 0.5
+            }
+          },
+          "error_message": null,
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "agent",
+            "ai"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        }
+      ]
+    }
+  ],
+  "performance_summary": {},
+  "critical_failures": [],
+  "system_info": {}
+}

@@ -1,0 +1,273 @@
+{
+  "report_id": "test_20251027_133110_601",
+  "test_session_id": "af217150-cfb0-4dd6-9904-80f66c60cba8",
+  "environment": "development",
+  "start_time": "2025-10-27T13:31:10.601320",
+  "end_time": "2025-10-27T13:31:11.465103",
+  "total_duration": 0.863783,
+  "summary": {
+    "total_tests": 5,
+    "total_passed": 0,
+    "total_failed": 5,
+    "total_skipped": 0,
+    "success_rate": 0.0
+  },
+  "suite_results": [
+    {
+      "suite_name": "api_tests",
+      "total_tests": 5,
+      "passed_tests": 0,
+      "failed_tests": 5,
+      "skipped_tests": 0,
+      "success_rate": 0.0,
+      "duration": 0.862477,
+      "start_time": "2025-10-27T13:31:10.602227",
+      "end_time": "2025-10-27T13:31:11.464704",
+      "results": [
+        {
+          "test_id": "test_20251027_133110_602",
+          "test_name": "system_endpoints",
+          "test_suite": "api_tests",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:31:10.602312",
+          "end_time": "2025-10-27T13:31:10.872586",
+          "duration": 0.270274,
+          "details": {},
+          "error_message": "Unknown error",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [
+            {
+              "name": "avg_response_time",
+              "value": 0.04464435577392578,
+              "unit": "s",
+              "threshold": 10.0,
+              "passed": true
+            }
+          ],
+          "tags": [
+            "api",
+            "backend"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_133110_872",
+          "test_name": "agent_endpoints",
+          "test_suite": "api_tests",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:31:10.872723",
+          "end_time": "2025-10-27T13:31:10.882180",
+          "duration": 0.009457,
+          "details": {},
+          "error_message": "Unknown error",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "api",
+            "backend"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_133110_882",
+          "test_name": "task_endpoints",
+          "test_suite": "api_tests",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:31:10.882314",
+          "end_time": "2025-10-27T13:31:10.910700",
+          "duration": 0.028386,
+          "details": {},
+          "error_message": "Unknown error",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "api",
+            "backend"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_133110_910",
+          "test_name": "websocket_endpoints",
+          "test_suite": "api_tests",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:31:10.910864",
+          "end_time": "2025-10-27T13:31:11.191864",
+          "duration": 0.281,
+          "details": {},
+          "error_message": "Unknown error",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "api",
+            "backend"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_133111_1191",
+          "test_name": "error_handling",
+          "test_suite": "api_tests",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T13:31:11.191958",
+          "end_time": "2025-10-27T13:31:11.463850",
+          "duration": 0.271892,
+          "details": {},
+          "error_message": "Unknown error",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "api",
+            "backend"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        }
+      ]
+    }
+  ],
+  "performance_summary": {
+    "avg_response_time": {
+      "values": [
+        0.04464435577392578
+      ],
+      "unit": "s",
+      "passed_count": 1,
+      "failed_count": 0,
+      "avg": 0.04464435577392578,
+      "min": 0.04464435577392578,
+      "max": 0.04464435577392578,
+      "count": 1
+    }
+  },
+  "critical_failures": [
+    {
+      "test_id": "test_20251027_133110_602",
+      "test_name": "system_endpoints",
+      "test_suite": "api_tests",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T13:31:10.602312",
+      "end_time": "2025-10-27T13:31:10.872586",
+      "duration": 0.270274,
+      "details": {},
+      "error_message": "Unknown error",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [
+        {
+          "name": "avg_response_time",
+          "value": 0.04464435577392578,
+          "unit": "s",
+          "threshold": 10.0,
+          "passed": true
+        }
+      ],
+      "tags": [
+        "api",
+        "backend"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    },
+    {
+      "test_id": "test_20251027_133110_872",
+      "test_name": "agent_endpoints",
+      "test_suite": "api_tests",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T13:31:10.872723",
+      "end_time": "2025-10-27T13:31:10.882180",
+      "duration": 0.009457,
+      "details": {},
+      "error_message": "Unknown error",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [],
+      "tags": [
+        "api",
+        "backend"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    },
+    {
+      "test_id": "test_20251027_133110_882",
+      "test_name": "task_endpoints",
+      "test_suite": "api_tests",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T13:31:10.882314",
+      "end_time": "2025-10-27T13:31:10.910700",
+      "duration": 0.028386,
+      "details": {},
+      "error_message": "Unknown error",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [],
+      "tags": [
+        "api",
+        "backend"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    },
+    {
+      "test_id": "test_20251027_133110_910",
+      "test_name": "websocket_endpoints",
+      "test_suite": "api_tests",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T13:31:10.910864",
+      "end_time": "2025-10-27T13:31:11.191864",
+      "duration": 0.281,
+      "details": {},
+      "error_message": "Unknown error",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [],
+      "tags": [
+        "api",
+        "backend"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    },
+    {
+      "test_id": "test_20251027_133111_1191",
+      "test_name": "error_handling",
+      "test_suite": "api_tests",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T13:31:11.191958",
+      "end_time": "2025-10-27T13:31:11.463850",
+      "duration": 0.271892,
+      "details": {},
+      "error_message": "Unknown error",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [],
+      "tags": [
+        "api",
+        "backend"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    }
+  ],
+  "system_info": {}
+}

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互修复系统测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn.secondary {
+            background: #6c757d;
+        }
+        
+        .btn.secondary:hover {
+            background: #545b62;
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .log-entry.error {
+            color: #dc3545;
+        }
+        
+        .log-entry.warn {
+            color: #ffc107;
+        }
+        
+        .log-entry.info {
+            color: #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>交互修复系统测试</h1>
+        <p>这个页面用于测试交互修复系统的功能。</p>
+        
+        <div class="test-section">
+            <h3>系统状态</h3>
+            <div id="systemStatus" class="status info">正在初始化...</div>
+            <button class="btn" onclick="checkSystemStatus()">检查状态</button>
+            <button class="btn secondary" onclick="clearLogs()">清除日志</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>诊断和修复测试</h3>
+            <button class="btn" onclick="runFullDiagnosis()">运行完整诊断</button>
+            <button class="btn" onclick="testSpecificComponent('dialog')">测试对话组件</button>
+            <button class="btn" onclick="testSpecificComponent('agent_management')">测试智能体管理</button>
+            <button class="btn" onclick="testSpecificComponent('llm_config')">测试LLM配置</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>监控功能测试</h3>
+            <button class="btn" onclick="getFixHistory()">获取修复历史</button>
+            <button class="btn" onclick="getPerformanceMetrics()">获取性能指标</button>
+            <button class="btn" onclick="getAlerts()">获取警报</button>
+            <button class="btn" onclick="triggerTestError()">触发测试错误</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>测试日志</h3>
+            <div id="testLog" class="log">
+                <div class="log-entry info">测试日志将显示在这里...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 交互修复系统初始化 -->
+    <script type="module" src="js/init/interaction-fix-init.js"></script>
+    
+    <script>
+        // 测试脚本
+        let logContainer;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            logContainer = document.getElementById('testLog');
+            
+            // 监听交互修复系统事件
+            window.addEventListener('monitoring:fix_recorded', (event) => {
+                logEntry('info', '修复记录: ' + JSON.stringify(event.detail, null, 2));
+            });
+            
+            window.addEventListener('monitoring:alert_created', (event) => {
+                logEntry('warn', '系统警报: ' + event.detail.message);
+            });
+            
+            window.addEventListener('monitoring:error_recorded', (event) => {
+                logEntry('error', '错误记录: ' + event.detail.message);
+            });
+            
+            // 定期检查系统状态
+            setInterval(checkSystemStatus, 5000);
+            
+            // 初始状态检查
+            setTimeout(checkSystemStatus, 1000);
+        });
+        
+        function logEntry(type, message) {
+            if (!logContainer) return;
+            
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // 限制日志条目数量
+            const entries = logContainer.querySelectorAll('.log-entry');
+            if (entries.length > 100) {
+                entries[0].remove();
+            }
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('systemStatus');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+        
+        async function checkSystemStatus() {
+            try {
+                if (window.getFixStatus) {
+                    const status = window.getFixStatus();
+                    
+                    if (status.initialized) {
+                        updateStatus(`系统正常 - 可用修复器: ${status.availableFixers.length} 个`, 'success');
+                        logEntry('info', `系统状态: 已初始化，修复历史: ${status.historyCount} 条`);
+                    } else {
+                        updateStatus('系统未初始化', 'error');
+                        logEntry('error', '交互修复系统未初始化');
+                    }
+                } else {
+                    updateStatus('交互修复系统不可用', 'error');
+                    logEntry('error', '交互修复系统全局方法不可用');
+                }
+            } catch (error) {
+                updateStatus('状态检查失败: ' + error.message, 'error');
+                logEntry('error', '状态检查失败: ' + error.message);
+            }
+        }
+        
+        async function runFullDiagnosis() {
+            logEntry('info', '开始运行完整诊断...');
+            updateStatus('正在运行诊断...', 'info');
+            
+            try {
+                if (window.fixAllInteractions) {
+                    const results = await window.fixAllInteractions();
+                    
+                    const successful = results.filter(r => r.success).length;
+                    const total = results.length;
+                    
+                    updateStatus(`诊断完成 - 成功: ${successful}/${total}`, successful === total ? 'success' : 'error');
+                    logEntry('info', `诊断结果: ${JSON.stringify(results, null, 2)}`);
+                } else {
+                    throw new Error('fixAllInteractions 方法不可用');
+                }
+            } catch (error) {
+                updateStatus('诊断失败: ' + error.message, 'error');
+                logEntry('error', '诊断失败: ' + error.message);
+            }
+        }
+        
+        async function testSpecificComponent(component) {
+            logEntry('info', `开始测试组件: ${component}`);
+            
+            try {
+                if (window.diagnoseComponent) {
+                    const result = await window.diagnoseComponent(component);
+                    
+                    const status = result.success ? 'success' : 'error';
+                    updateStatus(`组件 ${component} 测试${result.success ? '成功' : '失败'}`, status);
+                    logEntry('info', `组件测试结果: ${JSON.stringify(result, null, 2)}`);
+                } else {
+                    throw new Error('diagnoseComponent 方法不可用');
+                }
+            } catch (error) {
+                updateStatus(`组件 ${component} 测试失败: ${error.message}`, 'error');
+                logEntry('error', `组件测试失败: ${error.message}`);
+            }
+        }
+        
+        function getFixHistory() {
+            try {
+                if (window.interactionFixManager) {
+                    const history = window.interactionFixManager.getFixHistory();
+                    logEntry('info', `修复历史 (${history.length} 条): ${JSON.stringify(history, null, 2)}`);
+                } else {
+                    throw new Error('interactionFixManager 不可用');
+                }
+            } catch (error) {
+                logEntry('error', '获取修复历史失败: ' + error.message);
+            }
+        }
+        
+        function getPerformanceMetrics() {
+            try {
+                if (window.interactionFixManager && window.interactionFixManager.monitoring) {
+                    const metrics = window.interactionFixManager.monitoring.getPerformanceMetrics();
+                    logEntry('info', `性能指标 (${metrics.length} 条): ${JSON.stringify(metrics, null, 2)}`);
+                } else {
+                    throw new Error('监控系统不可用');
+                }
+            } catch (error) {
+                logEntry('error', '获取性能指标失败: ' + error.message);
+            }
+        }
+        
+        function getAlerts() {
+            try {
+                if (window.interactionFixManager && window.interactionFixManager.monitoring) {
+                    const alerts = window.interactionFixManager.monitoring.getAlerts();
+                    logEntry('info', `系统警报 (${alerts.length} 条): ${JSON.stringify(alerts, null, 2)}`);
+                } else {
+                    throw new Error('监控系统不可用');
+                }
+            } catch (error) {
+                logEntry('error', '获取警报失败: ' + error.message);
+            }
+        }
+        
+        function triggerTestError() {
+            logEntry('info', '触发测试错误...');
+            
+            // 故意触发一个错误来测试错误跟踪
+            setTimeout(() => {
+                throw new Error('这是一个测试错误，用于验证错误跟踪功能');
+            }, 100);
+        }
+        
+        function clearLogs() {
+            if (logContainer) {
+                logContainer.innerHTML = '<div class="log-entry info">日志已清除</div>';
+            }
+        }
+    </script>
+</body>
+</html>

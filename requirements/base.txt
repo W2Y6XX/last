@@ -1,0 +1,33 @@
+# LangGraph多智能体系统 - 基础依赖
+# 重构说明：分离基础依赖和应用特定依赖
+
+# 核心框架
+langgraph>=1.0.1
+langchain-core>=1.0.0
+langsmith>=0.4.38
+
+# Web框架
+fastapi>=0.104.0
+uvicorn>=0.24.0
+websockets>=12.0
+pydantic>=2.5.0
+
+# 数据处理
+sqlalchemy>=2.0.0
+redis>=5.0.0
+
+# 异步支持
+aiofiles>=23.0.0
+
+# 测试框架
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.25.0
+
+# 监控和日志
+prometheus-client>=0.19.0
+structlog>=23.2.0
+
+# 工具库
+python-dotenv>=1.0.0
+click>=8.0.0

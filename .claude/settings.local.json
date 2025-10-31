@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/agent 10.20/**)",
+      "Bash(python quick_start.py:*)",
+      "Bash(dir:*)",
+      "Read(//d/Desktop/**)",
+      "Bash(tree:*)",
+      "Bash(openspec:*)",
+      "Bash(copy:*)",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(ping:*)",
+      "Bash(curl:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

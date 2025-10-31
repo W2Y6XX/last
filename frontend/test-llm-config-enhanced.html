@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强版LLM配置管理测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        .btn.secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .config-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+        }
+        
+        .results {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .model-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .model-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .model-card h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .model-card .model-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+        
+        .model-card .model-provider {
+            background: #4facfe;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        
+        .model-card .model-capabilities {
+            font-size: 12px;
+            color: #495057;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 增强版LLM配置管理</h1>
+            <p>测试根据URL自动获取可配置模型的功能</p>
+        </div>
+        
+        <div class="content">
+            <!-- 配置表单 -->
+            <div class="test-section">
+                <h3>📝 配置信息</h3>
+                <div class="config-form">
+                    <div class="form-group">
+                        <label for="baseUrl">API基础URL:</label>
+                        <input type="url" id="baseUrl" value="https://api.openai.com/v1" placeholder="输入API基础URL">
+                    </div>
+                    <div class="form-group">
+                        <label for="apiKey">API密钥 (可选):</label>
+                        <input type="password" id="apiKey" placeholder="输入API密钥">
+                    </div>
+                    <div class="form-group">
+                        <label for="timeout">超时时间 (毫秒):</label>
+                        <input type="number" id="timeout" value="10000" min="1000" max="60000">
+                    </div>
+                    <div class="form-group">
+                        <label for="provider">预设提供商:</label>
+                        <select id="provider" onchange="onProviderChange()">
+                            <option value="">自定义</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="siliconflow">SiliconFlow</option>
+                            <option value="anthropic">Anthropic</option>
+                            <option value="local">本地部署</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <button class="btn" onclick="fetchModels()">🔄 获取模型列表</button>
+                    <button class="btn secondary" onclick="loadCachedModels()">📦 加载缓存</button>
+                    <button class="btn secondary" onclick="clearCache()">🗑️ 清除缓存</button>
+                    <button class="btn secondary" onclick="testConnection()">🔗 测试连接</button>
+                </div>
+            </div>
+            
+            <!-- 结果显示 -->
+            <div class="test-section">
+                <h3>📊 操作结果</h3>
+                <div id="results" class="results">等待操作...</div>
+            </div>
+            
+            <!-- 模型列表 -->
+            <div class="test-section">
+                <h3>🎯 可用模型</h3>
+                <div id="modelList" class="model-list">
+                    <div style="grid-column: 1 / -1; text-align: center; color: #6c757d; padding: 40px;">
+                        点击"获取模型列表"来查看可用模型
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 预设配置测试 -->
+            <div class="test-section">
+                <h3>🧪 预设配置测试</h3>
+                <p>快速测试不同提供商的模型获取功能：</p>
+                <div style="text-align: center;">
+                    <button class="btn secondary" onclick="testProvider('openai')">测试 OpenAI</button>
+                    <button class="btn secondary" onclick="testProvider('siliconflow')">测试 SiliconFlow</button>
+                    <button class="btn secondary" onclick="testProvider('anthropic')">测试 Anthropic</button>
+                    <button class="btn secondary" onclick="testProvider('local')">测试本地部署</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 加载LLM配置管理器 -->
+    <script src="js/managers/llm-config-manager.js"></script>
+    
+    <script>
+        let llmManager = null;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.LLMConfigManager) {
+                llmManager = new window.LLMConfigManager();
+                logResult('✅ LLM配置管理器已初始化');
+            } else {
+                logResult('❌ LLM配置管理器加载失败');
+            }
+        });
+        
+        function logResult(message) {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.textContent += `[${timestamp}] ${message}\n`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').textContent = '';
+        }
+        
+        function onProviderChange() {
+            const provider = document.getElementById('provider').value;
+            const baseUrlInput = document.getElementById('baseUrl');
+            
+            const presetUrls = {
+                'openai': 'https://api.openai.com/v1',
+                'siliconflow': 'https://api.siliconflow.cn/v1',
+                'anthropic': 'https://api.anthropic.com/v1',
+                'local': 'http://localhost:8000/v1'
+            };
+            
+            if (provider && presetUrls[provider]) {
+                baseUrlInput.value = presetUrls[provider];
+                logResult(`📝 已设置 ${provider} 的默认URL: ${presetUrls[provider]}`);
+            }
+        }
+        
+        async function fetchModels() {
+            if (!llmManager) {
+                logResult('❌ LLM管理器未初始化');
+                return;
+            }
+            
+            const baseUrl = document.getElementById('baseUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            const timeout = parseInt(document.getElementById('timeout').value);
+            
+            if (!baseUrl) {
+                logResult('❌ 请输入API基础URL');
+                return;
+            }
+            
+            logResult('🔄 开始获取模型列表...');
+            showLoading(true);
+            
+            try {
+                const result = await llmManager.fetchAvailableModels(baseUrl, apiKey, timeout);
+                
+                if (result.success) {
+                    logResult(`✅ 成功获取 ${result.models.length} 个模型`);
+                    displayModels(result.models);
+                    
+                    // 缓存模型
+                    llmManager.cacheModels(baseUrl, result.models);
+                    logResult('💾 模型列表已缓存');
+                    
+                } else {
+                    logResult(`❌ 获取失败: ${result.error}`);
+                    if (result.status) {
+                        logResult(`   HTTP状态码: ${result.status}`);
+                    }
+                }
+                
+            } catch (error) {
+                logResult(`❌ 获取模型时发生错误: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function loadCachedModels() {
+            if (!llmManager) {
+                logResult('❌ LLM管理器未初始化');
+                return;
+            }
+            
+            const baseUrl = document.getElementById('baseUrl').value;
+            if (!baseUrl) {
+                logResult('❌ 请输入API基础URL');
+                return;
+            }
+            
+            const cachedModels = llmManager.getCachedModels(baseUrl);
+            
+            if (cachedModels.length > 0) {
+                logResult(`📦 加载了 ${cachedModels.length} 个缓存模型`);
+                displayModels(cachedModels);
+            } else {
+                logResult('📦 没有找到缓存的模型');
+            }
+        }
+        
+        function clearCache() {
+            if (!llmManager) {
+                logResult('❌ LLM管理器未初始化');
+                return;
+            }
+            
+            const baseUrl = document.getElementById('baseUrl').value;
+            
+            if (baseUrl) {
+                llmManager.clearModelCache(baseUrl);
+                logResult(`🗑️ 已清除 ${baseUrl} 的模型缓存`);
+            } else {
+                llmManager.clearModelCache();
+                logResult('🗑️ 已清除所有模型缓存');
+            }
+            
+            // 清空模型显示
+            document.getElementById('modelList').innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; color: #6c757d; padding: 40px;">
+                    缓存已清除，点击"获取模型列表"来重新获取
+                </div>
+            `;
+        }
+        
+        async function testConnection() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const apiKey = document.getElementById('apiKey').value;
+            
+            if (!baseUrl) {
+                logResult('❌ 请输入API基础URL');
+                return;
+            }
+            
+            logResult('🔗 测试连接中...');
+            
+            try {
+                const response = await fetch(baseUrl.replace('/v1', '') + '/v1/models', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(apiKey && { 'Authorization': `Bearer ${apiKey}` })
+                    },
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    logResult(`✅ 连接成功 (HTTP ${response.status})`);
+                } else {
+                    logResult(`⚠️ 连接响应异常 (HTTP ${response.status}): ${response.statusText}`);
+                }
+                
+            } catch (error) {
+                logResult(`❌ 连接失败: ${error.message}`);
+            }
+        }
+        
+        async function testProvider(provider) {
+            const presetConfigs = {
+                'openai': {
+                    url: 'https://api.openai.com/v1',
+                    name: 'OpenAI'
+                },
+                'siliconflow': {
+                    url: 'https://api.siliconflow.cn/v1',
+                    name: 'SiliconFlow'
+                },
+                'anthropic': {
+                    url: 'https://api.anthropic.com/v1',
+                    name: 'Anthropic'
+                },
+                'local': {
+                    url: 'http://localhost:8000/v1',
+                    name: '本地部署'
+                }
+            };
+            
+            const config = presetConfigs[provider];
+            if (!config) return;
+            
+            logResult(`🧪 测试 ${config.name} (${config.url})`);
+            
+            // 设置表单值
+            document.getElementById('baseUrl').value = config.url;
+            document.getElementById('provider').value = provider;
+            
+            // 获取模型
+            await fetchModels();
+        }
+        
+        function displayModels(models) {
+            const modelListDiv = document.getElementById('modelList');
+            
+            if (models.length === 0) {
+                modelListDiv.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: #6c757d; padding: 40px;">
+                        没有找到可用模型
+                    </div>
+                `;
+                return;
+            }
+            
+            modelListDiv.innerHTML = '';
+            
+            models.forEach(model => {
+                const modelCard = document.createElement('div');
+                modelCard.className = 'model-card';
+                
+                const capabilities = model.capabilities || {};
+                const capabilityList = [];
+                
+                if (capabilities.vision) capabilityList.push('视觉');
+                if (capabilities.function_calling) capabilityList.push('函数调用');
+                if (capabilities.streaming) capabilityList.push('流式');
+                if (capabilities.embedding) capabilityList.push('嵌入');
+                
+                modelCard.innerHTML = `
+                    <h4>${model.displayName}</h4>
+                    <div class="model-id">${model.id}</div>
+                    <div class="model-provider">${model.provider}</div>
+                    <div class="model-capabilities">
+                        <strong>最大令牌:</strong> ${capabilities.max_tokens || 'N/A'}<br>
+                        ${capabilityList.length > 0 ? `<strong>功能:</strong> ${capabilityList.join(', ')}` : ''}
+                        ${model.owned_by && model.owned_by !== 'unknown' ? `<br><strong>所有者:</strong> ${model.owned_by}` : ''}
+                    </div>
+                `;
+                
+                modelListDiv.appendChild(modelCard);
+            });
+            
+            logResult(`📋 显示了 ${models.length} 个模型`);
+        }
+        
+        function showLoading(show) {
+            const modelListDiv = document.getElementById('modelList');
+            
+            if (show) {
+                modelListDiv.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                        <div class="loading"></div>
+                        正在获取模型列表...
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

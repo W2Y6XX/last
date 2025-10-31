@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sudo snap install:*)",
+      "Read(//d/agent 10.20/aaa/**)",
+      "Bash(openspec:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python:*)",
+      "Bash(dir:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

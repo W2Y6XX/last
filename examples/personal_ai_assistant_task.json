@@ -1,0 +1,52 @@
+{
+  "task_id": "personal_ai_assistant_001",
+  "task_type": "personal_ai_assistant",
+  "title": "构建个人AI助手系统",
+  "description": "设计并实现一个功能完整的个人AI助手，能够帮助用户管理日常任务、提供信息查询、智能对话等功能",
+  "priority": 1,
+  "input_data": {
+    "requirements": [
+      "自然语言对话交互",
+      "任务管理功能",
+      "日程安排管理",
+      "信息查询和搜索",
+      "个性化推荐",
+      "数据分析和可视化",
+      "知识库管理",
+      "多模态交互支持"
+    ],
+    "constraints": [
+      "用户界面友好直观",
+      "响应速度快",
+      "数据隐私保护",
+      "可扩展性强",
+      "离线功能支持"
+    ],
+    "technical_stack": {
+      "backend": "Python + FastAPI + LangGraph",
+      "frontend": "HTML5 + JavaScript + CSS3",
+      "database": "SQLite + Redis",
+      "ai_models": "硅基流动DeepSeek模型",
+      "apis": "OpenAI, Anthropic等多种LLM接口"
+    },
+    "timeline": {
+      "start_date": "2025-10-30",
+      "phases": [
+        "需求分析和架构设计",
+        "后端智能体开发",
+        "前端界面构建",
+        "系统集成测试",
+        "部署和优化"
+      ]
+    }
+  },
+  "expected_output": {
+    "architecture_design": "系统架构设计文档",
+    "implementation_plan": "详细实施计划",
+    "code_implementation": "完整代码实现",
+    "user_manual": "用户使用手册",
+    "demo_data": "演示数据和用例"
+  },
+  "requester_id": "demo_user",
+  "deadline": "2025-11-30T23:59:59Z"
+}

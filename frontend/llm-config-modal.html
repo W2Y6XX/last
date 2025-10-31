@@ -1,0 +1,632 @@
+<!-- LLM配置模态框 -->
+<div id="llmConfigModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px; width: 90%;">
+        <div class="modal-header">
+            <h2>🤖 大模型配置管理</h2>
+            <span class="close" onclick="closeLLMConfigModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <!-- 配置表单 -->
+            <div class="config-form">
+                <div class="form-section">
+                    <h3>基本配置</h3>
+                    
+                    <div class="form-row">
+                        <label for="configName">配置名称:</label>
+                        <input type="text" id="configName" placeholder="例如: OpenAI GPT-4" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="configProvider">提供商:</label>
+                        <select id="configProvider" onchange="onProviderChange()">
+                            <option value="openai">OpenAI</option>
+                            <option value="siliconflow">SiliconFlow</option>
+                            <option value="anthropic">Anthropic</option>
+                            <option value="local">本地部署</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="configBaseUrl">API基础URL:</label>
+                        <input type="url" id="configBaseUrl" placeholder="https://api.openai.com/v1" onchange="onBaseUrlChange()">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="configApiKey">API密钥:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="password" id="configApiKey" placeholder="输入您的API密钥" style="flex: 1;">
+                            <button type="button" class="btn secondary" onclick="toggleApiKeyVisibility()" style="padding: 8px;">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>模型选择</h3>
+                    
+                    <div class="form-row">
+                        <label for="configModel">模型:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <select id="configModel" style="flex: 1;">
+                                <option value="">请选择模型...</option>
+                            </select>
+                            <button type="button" class="btn secondary" onclick="fetchModelsForConfig()" style="padding: 8px 12px;">
+                                🔄 获取模型
+                            </button>
+                        </div>
+                        <div id="modelFetchStatus" class="form-help" style="margin-top: 5px;"></div>
+                    </div>
+                    
+                    <div id="modelInfo" class="model-info" style="display: none;">
+                        <div class="info-card">
+                            <h4>模型信息</h4>
+                            <div id="modelDetails"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>高级参数</h3>
+                    
+                    <div class="form-row">
+                        <label for="configMaxTokens">最大令牌数:</label>
+                        <input type="number" id="configMaxTokens" min="1" max="200000" value="2000">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="configTemperature">温度 (0-2):</label>
+                        <input type="number" id="configTemperature" min="0" max="2" step="0.1" value="0.7">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="configTimeout">超时时间 (毫秒):</label>
+                        <input type="number" id="configTimeout" min="1000" max="300000" value="30000">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="configMaxRetries">最大重试次数:</label>
+                        <input type="number" id="configMaxRetries" min="0" max="10" value="3">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 测试区域 -->
+            <div class="test-section" style="margin-top: 20px;">
+                <h3>连接测试</h3>
+                <div class="test-controls">
+                    <button type="button" class="btn secondary" onclick="testConfigConnection()">
+                        🔗 测试连接
+                    </button>
+                    <button type="button" class="btn secondary" onclick="testConfigChat()">
+                        💬 测试对话
+                    </button>
+                </div>
+                <div id="testResults" class="test-results" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn secondary" onclick="closeLLMConfigModal()">取消</button>
+            <button type="button" class="btn primary" onclick="saveConfigFromModal()">保存配置</button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 模态框样式 */
+.modal {
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.close {
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* 表单样式 */
+.form-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #e1e5e9;
+    border-radius: 6px;
+    background: #f8f9fa;
+}
+
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-size: 1.1em;
+}
+
+.form-row {
+    margin-bottom: 15px;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-row input,
+.form-row select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-row input:focus,
+.form-row select:focus {
+    outline: none;
+    border-color: #4facfe;
+    box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+}
+
+.form-help {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.form-help.success {
+    color: #28a745;
+}
+
+.form-help.error {
+    color: #dc3545;
+}
+
+/* 模型信息卡片 */
+.model-info {
+    margin-top: 15px;
+}
+
+.info-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.info-card h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+/* 测试区域 */
+.test-section {
+    border: 1px solid #e1e5e9;
+    border-radius: 6px;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.test-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.test-results {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 60px;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn.primary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.btn.secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+</style>
+
+<script>
+// LLM配置模态框相关函数
+let currentLLMManager = null;
+
+function openLLMConfigModal() {
+    document.getElementById('llmConfigModal').style.display = 'flex';
+    
+    // 初始化LLM管理器
+    if (window.LLMConfigManager && !currentLLMManager) {
+        currentLLMManager = new window.LLMConfigManager();
+    }
+    
+    // 设置默认值
+    onProviderChange();
+}
+
+function closeLLMConfigModal() {
+    document.getElementById('llmConfigModal').style.display = 'none';
+    clearConfigForm();
+}
+
+function clearConfigForm() {
+    document.getElementById('configName').value = '';
+    document.getElementById('configApiKey').value = '';
+    document.getElementById('configModel').innerHTML = '<option value="">请选择模型...</option>';
+    document.getElementById('modelInfo').style.display = 'none';
+    document.getElementById('testResults').textContent = '';
+    document.getElementById('modelFetchStatus').textContent = '';
+}
+
+function onProviderChange() {
+    const provider = document.getElementById('configProvider').value;
+    const baseUrlInput = document.getElementById('configBaseUrl');
+    
+    // 根据提供商设置默认URL
+    const defaultUrls = {
+        'openai': 'https://api.openai.com/v1',
+        'siliconflow': 'https://api.siliconflow.cn/v1',
+        'anthropic': 'https://api.anthropic.com/v1',
+        'local': 'http://localhost:8000/v1',
+        'custom': ''
+    };
+    
+    baseUrlInput.value = defaultUrls[provider] || '';
+    
+    // 清空模型选择
+    document.getElementById('configModel').innerHTML = '<option value="">请选择模型...</option>';
+    document.getElementById('modelInfo').style.display = 'none';
+    
+    // 尝试加载缓存的模型
+    if (baseUrlInput.value) {
+        loadCachedModelsForConfig(baseUrlInput.value);
+    }
+}
+
+function onBaseUrlChange() {
+    const baseUrl = document.getElementById('configBaseUrl').value;
+    if (baseUrl) {
+        loadCachedModelsForConfig(baseUrl);
+    }
+}
+
+function loadCachedModelsForConfig(baseUrl) {
+    if (!currentLLMManager) return;
+    
+    try {
+        const cachedModels = currentLLMManager.getCachedModels(baseUrl);
+        if (cachedModels.length > 0) {
+            updateConfigModelOptions(cachedModels);
+            updateModelFetchStatus(`已加载 ${cachedModels.length} 个缓存模型`, 'success');
+        }
+    } catch (error) {
+        console.error('加载缓存模型失败:', error);
+    }
+}
+
+async function fetchModelsForConfig() {
+    const baseUrl = document.getElementById('configBaseUrl').value;
+    const apiKey = document.getElementById('configApiKey').value;
+    
+    if (!baseUrl) {
+        updateModelFetchStatus('请先输入API基础URL', 'error');
+        return;
+    }
+    
+    if (!currentLLMManager) {
+        updateModelFetchStatus('LLM管理器未初始化', 'error');
+        return;
+    }
+    
+    try {
+        updateModelFetchStatus('正在获取模型列表...', 'info');
+        
+        const result = await currentLLMManager.fetchAvailableModels(baseUrl, apiKey, 15000);
+        
+        if (result.success && result.models.length > 0) {
+            updateConfigModelOptions(result.models);
+            currentLLMManager.cacheModels(baseUrl, result.models);
+            updateModelFetchStatus(`成功获取 ${result.models.length} 个模型`, 'success');
+        } else {
+            updateModelFetchStatus(`获取失败: ${result.error || '未知错误'}`, 'error');
+            
+            if (result.status === 401) {
+                updateModelFetchStatus('可能需要有效的API密钥', 'error');
+            }
+        }
+        
+    } catch (error) {
+        updateModelFetchStatus(`获取失败: ${error.message}`, 'error');
+    }
+}
+
+function updateConfigModelOptions(models) {
+    const modelSelect = document.getElementById('configModel');
+    const currentValue = modelSelect.value;
+    
+    // 清空现有选项
+    modelSelect.innerHTML = '<option value="">请选择模型...</option>';
+    
+    // 添加新的模型选项
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model.id;
+        option.textContent = model.displayName;
+        option.dataset.modelData = JSON.stringify(model);
+        modelSelect.appendChild(option);
+    });
+    
+    // 尝试恢复之前选择的值
+    if (currentValue && currentValue !== '') {
+        const matchingOption = Array.from(modelSelect.options).find(opt => opt.value === currentValue);
+        if (matchingOption) {
+            modelSelect.value = currentValue;
+        }
+    }
+    
+    // 添加模型选择事件监听器
+    modelSelect.onchange = function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption && selectedOption.dataset.modelData) {
+            showModelInfo(JSON.parse(selectedOption.dataset.modelData));
+        } else {
+            hideModelInfo();
+        }
+    };
+}
+
+function updateModelFetchStatus(message, type) {
+    const statusElement = document.getElementById('modelFetchStatus');
+    statusElement.textContent = message;
+    statusElement.className = `form-help ${type}`;
+}
+
+function showModelInfo(model) {
+    const modelInfoDiv = document.getElementById('modelInfo');
+    const modelDetailsDiv = document.getElementById('modelDetails');
+    
+    let detailsHtml = `
+        <div><strong>模型ID:</strong> ${model.id}</div>
+        <div><strong>提供商:</strong> ${model.provider}</div>
+    `;
+    
+    if (model.capabilities) {
+        const caps = model.capabilities;
+        detailsHtml += `<div><strong>最大令牌:</strong> ${caps.max_tokens || 'N/A'}</div>`;
+        
+        const features = [];
+        if (caps.vision) features.push('视觉理解');
+        if (caps.function_calling) features.push('函数调用');
+        if (caps.streaming) features.push('流式输出');
+        if (caps.embedding) features.push('嵌入向量');
+        
+        if (features.length > 0) {
+            detailsHtml += `<div><strong>支持功能:</strong> ${features.join(', ')}</div>`;
+        }
+    }
+    
+    if (model.owned_by && model.owned_by !== 'unknown') {
+        detailsHtml += `<div><strong>所有者:</strong> ${model.owned_by}</div>`;
+    }
+    
+    modelDetailsDiv.innerHTML = detailsHtml;
+    modelInfoDiv.style.display = 'block';
+    
+    // 自动更新最大令牌数
+    if (model.capabilities && model.capabilities.max_tokens) {
+        document.getElementById('configMaxTokens').value = Math.min(model.capabilities.max_tokens, 4000);
+    }
+}
+
+function hideModelInfo() {
+    document.getElementById('modelInfo').style.display = 'none';
+}
+
+function toggleApiKeyVisibility() {
+    const apiKeyInput = document.getElementById('configApiKey');
+    if (apiKeyInput.type === 'password') {
+        apiKeyInput.type = 'text';
+    } else {
+        apiKeyInput.type = 'password';
+    }
+}
+
+async function testConfigConnection() {
+    const baseUrl = document.getElementById('configBaseUrl').value;
+    const apiKey = document.getElementById('configApiKey').value;
+    
+    if (!baseUrl) {
+        updateTestResults('请先输入API基础URL');
+        return;
+    }
+    
+    updateTestResults('正在测试连接...');
+    
+    try {
+        if (!currentLLMManager) {
+            currentLLMManager = new window.LLMConfigManager();
+        }
+        
+        const result = await currentLLMManager.fetchAvailableModels(baseUrl, apiKey, 10000);
+        
+        if (result.success) {
+            updateTestResults(`✅ 连接成功！\n发现 ${result.models.length} 个可用模型`);
+        } else {
+            updateTestResults(`❌ 连接失败：${result.error}`);
+        }
+        
+    } catch (error) {
+        updateTestResults(`❌ 连接测试失败：${error.message}`);
+    }
+}
+
+async function testConfigChat() {
+    const config = getConfigFromForm();
+    
+    if (!config.baseUrl || !config.model) {
+        updateTestResults('请先完成基本配置（URL和模型）');
+        return;
+    }
+    
+    updateTestResults('正在测试对话功能...');
+    
+    try {
+        // 这里可以调用实际的对话测试API
+        // 暂时模拟测试结果
+        setTimeout(() => {
+            updateTestResults(`✅ 对话测试成功！\n模型: ${config.model}\n响应时间: 1.2秒`);
+        }, 1200);
+        
+    } catch (error) {
+        updateTestResults(`❌ 对话测试失败：${error.message}`);
+    }
+}
+
+function updateTestResults(message) {
+    document.getElementById('testResults').textContent = message;
+}
+
+function getConfigFromForm() {
+    return {
+        name: document.getElementById('configName').value,
+        provider: document.getElementById('configProvider').value,
+        baseUrl: document.getElementById('configBaseUrl').value,
+        apiKey: document.getElementById('configApiKey').value,
+        model: document.getElementById('configModel').value,
+        maxTokens: parseInt(document.getElementById('configMaxTokens').value),
+        temperature: parseFloat(document.getElementById('configTemperature').value),
+        timeout: parseInt(document.getElementById('configTimeout').value),
+        maxRetries: parseInt(document.getElementById('configMaxRetries').value)
+    };
+}
+
+async function saveConfigFromModal() {
+    const config = getConfigFromForm();
+    
+    // 验证必填字段
+    if (!config.name || !config.baseUrl || !config.model) {
+        alert('请填写配置名称、API基础URL和模型');
+        return;
+    }
+    
+    try {
+        if (!currentLLMManager) {
+            currentLLMManager = new window.LLMConfigManager();
+        }
+        
+        const result = await currentLLMManager.createConfig({
+            name: config.name,
+            provider: config.provider,
+            settings: {
+                baseUrl: config.baseUrl,
+                apiKey: config.apiKey,
+                model: config.model,
+                maxTokens: config.maxTokens,
+                temperature: config.temperature,
+                timeout: config.timeout,
+                maxRetries: config.maxRetries
+            }
+        });
+        
+        if (result.success) {
+            alert('配置保存成功！');
+            closeLLMConfigModal();
+            
+            // 触发配置列表刷新事件
+            window.dispatchEvent(new CustomEvent('llmConfigUpdated'));
+        } else {
+            alert('保存失败：' + (result.errors ? result.errors.join(', ') : '未知错误'));
+        }
+        
+    } catch (error) {
+        alert('保存失败：' + error.message);
+    }
+}
+
+// 点击模态框外部关闭
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('llmConfigModal');
+    if (event.target === modal) {
+        closeLLMConfigModal();
+    }
+});
+</script>

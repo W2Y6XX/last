@@ -1,0 +1,2631 @@
+openapi: 3.0.3
+info:
+  title: LangGraph Multi-Agent System API
+  description: |
+    A comprehensive multi-agent workflow system built with FastAPI and LangGraph.
+
+    This API provides endpoints for managing tasks, agents, workflows, and system operations.
+    The system supports multiple execution modes, real-time communication via WebSockets,
+    and comprehensive monitoring and health checking capabilities.
+
+    ## Features
+    - Task management with priority and type classification
+    - Multi-agent coordination and execution
+    - Real-time status updates via WebSocket
+    - Comprehensive system monitoring and health checks
+    - LLM configuration management
+    - Batch operations and statistics
+    - Meta-agent conversation management
+
+    ## Authentication
+    The API uses JWT-based authentication for securing endpoints.
+
+    ## Rate Limiting
+    Rate limiting is applied to prevent abuse and ensure system stability.
+
+    ## WebSocket Support
+    Real-time communication is supported through WebSocket endpoints for live updates.
+  version: 1.0.0
+  contact:
+    name: LangGraph Multi-Agent Team
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: Tasks
+    description: Task management operations
+  - name: Agents
+    description: Agent management and monitoring
+  - name: Workflows
+    description: Workflow execution and configuration
+  - name: LLM Configuration
+    description: Large Language Model configuration management
+  - name: Meta Agent
+    description: Meta-agent conversation and task management
+  - name: System
+    description: System health, metrics, and maintenance
+  - name: WebSocket
+    description: Real-time communication endpoints
+  - name: MVP2 Frontend
+    description: Frontend integration endpoints
+
+paths:
+  /api/v1/tasks:
+    get:
+      tags:
+        - Tasks
+      summary: List tasks
+      description: Retrieve a paginated list of tasks with optional filtering and sorting
+      operationId: listTasks
+      parameters:
+        - name: status
+          in: query
+          description: Filter by task status
+          schema:
+            type: string
+        - name: task_type
+          in: query
+          description: Filter by task type
+          schema:
+            type: string
+            enum: [general, analysis, research, development, coordination, reporting]
+        - name: priority
+          in: query
+          description: Filter by priority level
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 4
+        - name: requester_id
+          in: query
+          description: Filter by requester ID
+          schema:
+            type: string
+        - name: created_after
+          in: query
+          description: Filter tasks created after this timestamp
+          schema:
+            type: string
+            format: date-time
+        - name: created_before
+          in: query
+          description: Filter tasks created before this timestamp
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          description: Number of items per page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: sort_by
+          in: query
+          description: Field to sort by
+          schema:
+            type: string
+            default: created_at
+        - name: sort_order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            default: desc
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Successful retrieval of task list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Tasks
+      summary: Create a new task
+      description: Create a new task with specified parameters and requirements
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreateRequest'
+      responses:
+        '201':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/tasks/{task_id}:
+    get:
+      tags:
+        - Tasks
+      summary: Get task details
+      description: Retrieve detailed information about a specific task
+      operationId: getTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags:
+        - Tasks
+      summary: Update task
+      description: Update task information and parameters
+      operationId: updateTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdateRequest'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - Tasks
+      summary: Delete task
+      description: Delete a task and all associated data
+      operationId: deleteTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/tasks/{task_id}/logs:
+    get:
+      tags:
+        - Tasks
+      summary: Get task logs
+      description: Retrieve execution logs for a specific task
+      operationId: getTaskLogs
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of log entries to return
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+        - name: offset
+          in: query
+          description: Offset for pagination
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: Task logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        level:
+                          type: string
+                          enum: [DEBUG, INFO, WARNING, ERROR, CRITICAL]
+                        message:
+                          type: string
+                        metadata:
+                          type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/tasks/{task_id}/stream:
+    get:
+      tags:
+        - Tasks
+      summary: Stream task execution
+      description: Stream real-time task execution updates via Server-Sent Events
+      operationId: streamTask
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task execution stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/tasks/{task_id}/actions:
+    post:
+      tags:
+        - Tasks
+      summary: Perform task action
+      description: Perform actions like pause, resume, cancel, or retry on a task
+      operationId: performTaskAction
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: Task ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskActionRequest'
+      responses:
+        '200':
+          description: Action performed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/tasks/batch:
+    post:
+      tags:
+        - Tasks
+      summary: Batch task operations
+      description: Perform operations on multiple tasks at once
+      operationId: batchTaskOperation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchTaskAction'
+      responses:
+        '200':
+          description: Batch operation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchOperationResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/tasks/statistics:
+    get:
+      tags:
+        - Tasks
+      summary: Get task statistics
+      description: Retrieve comprehensive task statistics and metrics
+      operationId: getTaskStatistics
+      responses:
+        '200':
+          description: Task statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskStatistics'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents:
+    get:
+      tags:
+        - Agents
+      summary: List agents
+      description: Retrieve a list of all available agents
+      operationId: listAgents
+      parameters:
+        - name: agent_type
+          in: query
+          description: Filter by agent type
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by agent status
+          schema:
+            type: string
+        - name: capability
+          in: query
+          description: Filter by capability
+          schema:
+            type: string
+        - name: task_id
+          in: query
+          description: Filter by current task
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agents retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentInfo'
+                  total:
+                    type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/{agent_id}:
+    get:
+      tags:
+        - Agents
+      summary: Get agent details
+      description: Retrieve detailed information about a specific agent
+      operationId: getAgent
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentInfo'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/{agent_id}/status:
+    get:
+      tags:
+        - Agents
+      summary: Get agent status
+      description: Retrieve current status of a specific agent
+      operationId: getAgentStatus
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agent_id:
+                    type: string
+                  status:
+                    type: string
+                  last_updated:
+                    type: string
+                    format: date-time
+                  current_task:
+                    type: string
+                    nullable: true
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/{agent_id}/health:
+    get:
+      tags:
+        - Agents
+      summary: Get agent health
+      description: Retrieve health status and metrics for a specific agent
+      operationId: getAgentHealth
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent health retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agent_id:
+                    type: string
+                  healthy:
+                    type: boolean
+                  last_check:
+                    type: string
+                    format: date-time
+                  metrics:
+                    type: object
+                  alerts:
+                    type: array
+                    items:
+                      type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/{agent_id}/logs:
+    get:
+      tags:
+        - Agents
+      summary: Get agent logs
+      description: Retrieve execution logs for a specific agent
+      operationId: getAgentLogs
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of log entries
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 1000
+      responses:
+        '200':
+          description: Agent logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/{agent_id}/history:
+    get:
+      tags:
+        - Agents
+      summary: Get agent execution history
+      description: Retrieve historical execution data for a specific agent
+      operationId: getAgentHistory
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of history entries
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 500
+      responses:
+        '200':
+          description: Agent history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        task_id:
+                          type: string
+                        status:
+                          type: string
+                        start_time:
+                          type: string
+                          format: date-time
+                        end_time:
+                          type: string
+                          format: date-time
+                        result:
+                          type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/enhanced:
+    get:
+      tags:
+        - Agents
+      summary: Get enhanced agent view
+      description: Retrieve enhanced information about all agents with additional metrics
+      operationId: getEnhancedAgents
+      responses:
+        '200':
+          description: Enhanced agent data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agents:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/AgentInfo'
+                        - type: object
+                          properties:
+                            performance_metrics:
+                              type: object
+                            recent_activity:
+                              type: array
+                              items:
+                                type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/{agent_id}/detailed:
+    get:
+      tags:
+        - Agents
+      summary: Get detailed agent information
+      description: Retrieve comprehensive detailed information about a specific agent
+      operationId: getDetailedAgent
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detailed agent information retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/AgentInfo'
+                  - type: object
+                    properties:
+                      configuration:
+                        type: object
+                      performance_history:
+                        type: array
+                        items:
+                          type: object
+                      capabilities_detailed:
+                        type: array
+                        items:
+                          type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/agents/{agent_id}/config:
+    put:
+      tags:
+        - Agents
+      summary: Update agent configuration
+      description: Update configuration parameters for a specific agent
+      operationId: updateAgentConfig
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          description: Agent ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                capabilities:
+                  type: array
+                  items:
+                    type: string
+                parameters:
+                  type: object
+                enabled:
+                  type: boolean
+      responses:
+        '200':
+          description: Agent configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/workflows/{workflow_id}/status:
+    get:
+      tags:
+        - Workflows
+      summary: Get workflow status
+      description: Retrieve current status and progress of a specific workflow
+      operationId: getWorkflowStatus
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowStatus'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/workflows/{workflow_id}/config:
+    put:
+      tags:
+        - Workflows
+      summary: Update workflow configuration
+      description: Update configuration parameters for a specific workflow
+      operationId: updateWorkflowConfig
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          description: Workflow ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowConfigRequest'
+      responses:
+        '200':
+          description: Workflow configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/llm/configs:
+    get:
+      tags:
+        - LLM Configuration
+      summary: List LLM configurations
+      description: Retrieve a list of all LLM configurations
+      operationId: listLLMConfigs
+      responses:
+        '200':
+          description: LLM configurations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        config_id:
+                          type: string
+                        name:
+                          type: string
+                        provider:
+                          type: string
+                        model:
+                          type: string
+                        active:
+                          type: boolean
+                        created_at:
+                          type: string
+                          format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - LLM Configuration
+      summary: Create LLM configuration
+      description: Create a new LLM configuration
+      operationId: createLLMConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - provider
+                - model
+                - api_key
+              properties:
+                name:
+                  type: string
+                  description: Configuration name
+                provider:
+                  type: string
+                  description: LLM provider
+                  enum: [openai, anthropic, huggingface, local]
+                model:
+                  type: string
+                  description: Model name
+                api_key:
+                  type: string
+                  description: API key
+                api_base:
+                  type: string
+                  description: API base URL
+                parameters:
+                  type: object
+                  description: Model parameters
+                description:
+                  type: string
+                  description: Configuration description
+      responses:
+        '201':
+          description: LLM configuration created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/llm/configs/{config_id}:
+    get:
+      tags:
+        - LLM Configuration
+      summary: Get LLM configuration
+      description: Retrieve details of a specific LLM configuration
+      operationId: getLLMConfig
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: LLM configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config_id:
+                    type: string
+                  name:
+                    type: string
+                  provider:
+                    type: string
+                  model:
+                    type: string
+                  api_base:
+                    type: string
+                  parameters:
+                    type: object
+                  description:
+                    type: string
+                  active:
+                    type: boolean
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags:
+        - LLM Configuration
+      summary: Update LLM configuration
+      description: Update an existing LLM configuration
+      operationId: updateLLMConfig
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                provider:
+                  type: string
+                model:
+                  type: string
+                api_key:
+                  type: string
+                api_base:
+                  type: string
+                parameters:
+                  type: object
+                description:
+                  type: string
+      responses:
+        '200':
+          description: LLM configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - LLM Configuration
+      summary: Delete LLM configuration
+      description: Delete an LLM configuration
+      operationId: deleteLLMConfig
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: LLM configuration deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/llm/configs/{config_id}/test:
+    post:
+      tags:
+        - LLM Configuration
+      summary: Test LLM configuration
+      description: Test an LLM configuration to verify connectivity and functionality
+      operationId: testLLMConfig
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                test_prompt:
+                  type: string
+                  default: "Hello, please respond with a simple greeting."
+                max_tokens:
+                  type: integer
+                  default: 50
+      responses:
+        '200':
+          description: LLM configuration test completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  response_time_ms:
+                    type: number
+                  response:
+                    type: string
+                  tokens_used:
+                    type: integer
+                  error:
+                    type: string
+                    nullable: true
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/llm/configs/{config_id}/activate:
+    post:
+      tags:
+        - LLM Configuration
+      summary: Activate LLM configuration
+      description: Set an LLM configuration as active for use
+      operationId: activateLLMConfig
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: LLM configuration activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/llm/configs/{config_id}/usage:
+    get:
+      tags:
+        - LLM Configuration
+      summary: Get LLM usage statistics
+      description: Retrieve usage statistics for a specific LLM configuration
+      operationId: getLLMUsage
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: Start date for statistics
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for statistics
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: LLM usage statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  config_id:
+                    type: string
+                  total_requests:
+                    type: integer
+                  total_tokens:
+                    type: integer
+                  total_cost:
+                    type: number
+                  average_response_time:
+                    type: number
+                  success_rate:
+                    type: number
+                  daily_usage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        requests:
+                          type: integer
+                        tokens:
+                          type: integer
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/llm/configs/{config_id}/usage/update:
+    post:
+      tags:
+        - LLM Configuration
+      summary: Update LLM usage data
+      description: Update usage statistics for a specific LLM configuration
+      operationId: updateLLMUsage
+      parameters:
+        - name: config_id
+          in: path
+          required: true
+          description: Configuration ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tokens_used
+                - response_time_ms
+              properties:
+                tokens_used:
+                  type: integer
+                  description: Number of tokens used
+                response_time_ms:
+                  type: number
+                  description: Response time in milliseconds
+                success:
+                  type: boolean
+                  description: Whether the request was successful
+                cost:
+                  type: number
+                  description: Cost of the request
+      responses:
+        '200':
+          description: LLM usage data updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/meta-agent/conversations:
+    post:
+      tags:
+        - Meta Agent
+      summary: Start new conversation
+      description: Start a new conversation with the meta-agent
+      operationId: startConversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - initial_message
+              properties:
+                initial_message:
+                  type: string
+                  description: Initial message to start the conversation
+                context:
+                  type: object
+                  description: Additional context for the conversation
+                user_id:
+                  type: string
+                  description: User ID
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                  default: medium
+      responses:
+        '201':
+          description: Conversation started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation_id:
+                    type: string
+                  message:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/meta-agent/conversations/{conversation_id}:
+    get:
+      tags:
+        - Meta Agent
+      summary: Get conversation
+      description: Retrieve details of a specific conversation
+      operationId: getConversation
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          description: Conversation ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Conversation retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation_id:
+                    type: string
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message_id:
+                          type: string
+                        role:
+                          type: string
+                          enum: [user, assistant, system]
+                        content:
+                          type: string
+                        timestamp:
+                          type: string
+                          format: date-time
+                        metadata:
+                          type: object
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - Meta Agent
+      summary: Delete conversation
+      description: Delete a conversation and all associated messages
+      operationId: deleteConversation
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          description: Conversation ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Conversation deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/meta-agent/conversations/{conversation_id}/messages:
+    post:
+      tags:
+        - Meta Agent
+      summary: Add message to conversation
+      description: Add a new message to an existing conversation
+      operationId: addMessage
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          description: Conversation ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: Message content
+                role:
+                  type: string
+                  enum: [user, assistant, system]
+                  default: user
+                metadata:
+                  type: object
+                  description: Additional metadata
+      responses:
+        '201':
+          description: Message added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message_id:
+                    type: string
+                  conversation_id:
+                    type: string
+                  role:
+                    type: string
+                  content:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  response:
+                    type: string
+                    nullable: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/meta-agent/conversations/{conversation_id}/analyze-complexity:
+    post:
+      tags:
+        - Meta Agent
+      summary: Analyze conversation complexity
+      description: Analyze the complexity of a conversation and provide insights
+      operationId: analyzeComplexity
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          description: Conversation ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                analysis_depth:
+                  type: string
+                  enum: [basic, detailed, comprehensive]
+                  default: detailed
+                focus_areas:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific areas to focus analysis on
+      responses:
+        '200':
+          description: Complexity analysis completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation_id:
+                    type: string
+                  complexity_score:
+                    type: number
+                    minimum: 0
+                    maximum: 10
+                  complexity_level:
+                    type: string
+                    enum: [simple, moderate, complex, very_complex]
+                  insights:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category:
+                          type: string
+                        description:
+                          type: string
+                        confidence:
+                          type: number
+                          minimum: 0
+                          maximum: 1
+                  recommendations:
+                    type: array
+                    items:
+                      type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/meta-agent/conversations/{conversation_id}/decompose:
+    post:
+      tags:
+        - Meta Agent
+      summary: Decompose tasks from conversation
+      description: Decompose complex tasks identified in the conversation into smaller subtasks
+      operationId: decomposeTasks
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          description: Conversation ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_tasks:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific tasks to decompose
+                decomposition_strategy:
+                  type: string
+                  enum: [hierarchical, sequential, parallel, priority_based]
+                  default: hierarchical
+                max_depth:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  default: 3
+      responses:
+        '200':
+          description: Task decomposition completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation_id:
+                    type: string
+                  decomposition:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        task_id:
+                          type: string
+                        parent_task_id:
+                          type: string
+                          nullable: true
+                        title:
+                          type: string
+                        description:
+                          type: string
+                        priority:
+                          type: string
+                          enum: [low, medium, high, urgent]
+                        estimated_duration:
+                          type: string
+                        dependencies:
+                          type: array
+                          items:
+                            type: string
+                        required_capabilities:
+                          type: array
+                          items:
+                            type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/system/health:
+    get:
+      tags:
+        - System
+      summary: Get system health
+      description: Retrieve comprehensive system health status
+      operationId: getSystemHealth
+      responses:
+        '200':
+          description: System health retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/system/metrics:
+    get:
+      tags:
+        - System
+      summary: Get system metrics
+      description: Retrieve current system performance metrics
+      operationId: getSystemMetrics
+      responses:
+        '200':
+          description: System metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetrics'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/system/status:
+    get:
+      tags:
+        - System
+      summary: Get system status
+      description: Retrieve basic system status information
+      operationId: getSystemStatus
+      responses:
+        '200':
+          description: System status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy, maintenance]
+                  uptime_seconds:
+                    type: integer
+                  version:
+                    type: string
+                  environment:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/system/maintenance:
+    post:
+      tags:
+        - System
+      summary: Trigger maintenance
+      description: Trigger system maintenance operations
+      operationId: triggerMaintenance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - operation
+              properties:
+                operation:
+                  type: string
+                  enum: [cleanup, backup, optimize, reset_cache, health_check]
+                parameters:
+                  type: object
+                  description: Operation-specific parameters
+                force:
+                  type: boolean
+                  default: false
+                  description: Force operation even if system is busy
+      responses:
+        '200':
+          description: Maintenance operation triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  operation_id:
+                    type: string
+                  operation:
+                    type: string
+                  status:
+                    type: string
+                    enum: [queued, running, completed, failed]
+                  started_at:
+                    type: string
+                    format: date-time
+                  estimated_duration:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/ws:
+    get:
+      tags:
+        - WebSocket
+      summary: WebSocket endpoint
+      description: Main WebSocket endpoint for real-time communication
+      operationId: webSocketConnection
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Authentication token
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket connection established
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/mvp2/ws:
+    get:
+      tags:
+        - MVP2 Frontend
+      summary: MVP2 WebSocket endpoint
+      description: WebSocket endpoint specifically for MVP2 frontend integration
+      operationId: mvp2WebSocketConnection
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Authentication token
+          schema:
+            type: string
+        - name: session_id
+          in: query
+          description: Session identifier
+          schema:
+            type: string
+      responses:
+        '101':
+          description: WebSocket connection established
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    TaskCreateRequest:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Task title
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Task description
+        task_type:
+          $ref: '#/components/schemas/TaskType'
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        requirements:
+          type: array
+          items:
+            type: string
+          description: Task requirements
+          maxItems: 20
+        constraints:
+          type: array
+          items:
+            type: string
+          description: Task constraints
+          maxItems: 10
+        input_data:
+          type: object
+          additionalProperties: true
+          description: Input data for the task
+        execution_mode:
+          $ref: '#/components/schemas/WorkflowExecutionMode'
+        timeout_seconds:
+          type: integer
+          minimum: 60
+          maximum: 86400
+          default: 3600
+          description: Timeout in seconds
+        requester_id:
+          type: string
+          description: Requester ID
+
+    TaskUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Task title
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Task description
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        requirements:
+          type: array
+          items:
+            type: string
+          description: Task requirements
+        constraints:
+          type: array
+          items:
+            type: string
+          description: Task constraints
+        input_data:
+          type: object
+          additionalProperties: true
+          description: Input data for the task
+
+    TaskActionRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [pause, resume, cancel, retry]
+          description: Action type
+        reason:
+          type: string
+          description: Reason for the action
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Action metadata
+
+    WorkflowConfigRequest:
+      type: object
+      properties:
+        execution_mode:
+          $ref: '#/components/schemas/WorkflowExecutionMode'
+        checkpoint_interval:
+          type: integer
+          minimum: 10
+          maximum: 3600
+          description: Checkpoint interval in seconds
+        max_retries:
+          type: integer
+          minimum: 0
+          maximum: 10
+          description: Maximum retry attempts
+        timeout_seconds:
+          type: integer
+          minimum: 60
+          maximum: 86400
+          description: Timeout in seconds
+        agents_config:
+          type: object
+          additionalProperties: true
+          description: Agent configuration
+
+    TaskPriority:
+      type: integer
+      enum: [1, 2, 3, 4]
+      description: Task priority levels
+      x-enum-varnames: [LOW, MEDIUM, HIGH, URGENT]
+
+    TaskType:
+      type: string
+      enum: [general, analysis, research, development, coordination, reporting]
+      description: Task types
+
+    WorkflowExecutionMode:
+      type: string
+      enum: [sequential, parallel, adaptive]
+      description: Workflow execution modes
+
+    TaskInfo:
+      type: object
+      required:
+        - task_id
+        - title
+        - description
+        - task_type
+        - priority
+        - status
+        - created_at
+        - updated_at
+      properties:
+        task_id:
+          type: string
+          description: Task ID
+        title:
+          type: string
+          description: Task title
+        description:
+          type: string
+          description: Task description
+        task_type:
+          type: string
+          description: Task type
+        priority:
+          type: integer
+          description: Task priority
+        status:
+          type: string
+          description: Task status
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Start timestamp
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Completion timestamp
+        requester_id:
+          type: string
+          nullable: true
+          description: Requester ID
+
+    TaskDetail:
+      allOf:
+        - $ref: '#/components/schemas/TaskInfo'
+        - type: object
+          properties:
+            requirements:
+              type: array
+              items:
+                type: string
+              description: Task requirements
+            constraints:
+              type: array
+              items:
+                type: string
+              description: Task constraints
+            input_data:
+              type: object
+              additionalProperties: true
+              description: Input data
+            output_data:
+              type: object
+              additionalProperties: true
+              nullable: true
+              description: Output data
+            subtasks:
+              type: array
+              items:
+                type: object
+              description: Subtasks
+            execution_metadata:
+              type: object
+              additionalProperties: true
+              description: Execution metadata
+            error_info:
+              type: object
+              additionalProperties: true
+              nullable: true
+              description: Error information
+
+    WorkflowStatus:
+      type: object
+      required:
+        - workflow_id
+        - task_id
+        - current_phase
+        - status
+        - progress
+        - active_agents
+        - completed_agents
+        - failed_agents
+      properties:
+        workflow_id:
+          type: string
+          description: Workflow ID
+        task_id:
+          type: string
+          description: Task ID
+        current_phase:
+          type: string
+          description: Current workflow phase
+        status:
+          type: string
+          description: Workflow status
+        progress:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Progress percentage
+        active_agents:
+          type: array
+          items:
+            type: string
+          description: Active agents
+        completed_agents:
+          type: array
+          items:
+            type: string
+          description: Completed agents
+        failed_agents:
+          type: array
+          items:
+            type: string
+          description: Failed agents
+        execution_time:
+          type: number
+          nullable: true
+          description: Execution time in seconds
+        estimated_remaining_time:
+          type: number
+          nullable: true
+          description: Estimated remaining time in seconds
+
+    AgentInfo:
+      type: object
+      required:
+        - agent_id
+        - agent_type
+        - name
+        - description
+        - capabilities
+        - status
+        - execution_stats
+      properties:
+        agent_id:
+          type: string
+          description: Agent ID
+        agent_type:
+          type: string
+          description: Agent type
+        name:
+          type: string
+          description: Agent name
+        description:
+          type: string
+          description: Agent description
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Agent capabilities
+        status:
+          type: string
+          description: Agent status
+        current_task:
+          type: string
+          nullable: true
+          description: Current task
+        execution_stats:
+          type: object
+          additionalProperties: true
+          description: Execution statistics
+
+    SystemHealth:
+      type: object
+      required:
+        - overall_healthy
+        - timestamp
+        - health_checks
+        - active_alerts
+        - error_metrics
+        - performance_metrics
+      properties:
+        overall_healthy:
+          type: boolean
+          description: Overall system health status
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+        health_checks:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [healthy, unhealthy, warning]
+              message:
+                type: string
+              last_check:
+                type: string
+                format: date-time
+              response_time_ms:
+                type: number
+          description: Individual health check results
+        active_alerts:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              severity:
+                type: string
+                enum: [info, warning, error, critical]
+              message:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+              acknowledged:
+                type: boolean
+          description: Active system alerts
+        error_metrics:
+          type: object
+          properties:
+            error_rate:
+              type: number
+              minimum: 0
+              maximum: 1
+            total_errors:
+              type: integer
+            errors_by_type:
+              type: object
+              additionalProperties:
+                type: integer
+          description: Error metrics
+        performance_metrics:
+          type: object
+          properties:
+            avg_response_time:
+              type: number
+            requests_per_second:
+              type: number
+            cpu_usage:
+              type: number
+              minimum: 0
+              maximum: 100
+            memory_usage:
+              type: number
+              minimum: 0
+              maximum: 100
+          description: Performance metrics
+
+    TaskListResponse:
+      type: object
+      required:
+        - tasks
+        - total
+        - page
+        - page_size
+        - has_next
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskInfo'
+          description: List of tasks
+        total:
+          type: integer
+          description: Total number of tasks
+        page:
+          type: integer
+          description: Current page number
+        page_size:
+          type: integer
+          description: Number of items per page
+        has_next:
+          type: boolean
+          description: Whether there are more pages
+
+    ApiResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          description: Operation success status
+        message:
+          type: string
+          description: Response message
+        data:
+          type: object
+          additionalProperties: true
+          nullable: true
+          description: Response data
+        error_code:
+          type: string
+          nullable: true
+          description: Error code if applicable
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error_code
+        - error_message
+      properties:
+        success:
+          type: boolean
+          default: false
+          description: Always false for error responses
+        error_code:
+          type: string
+          description: Machine-readable error code
+        error_message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          additionalProperties: true
+          nullable: true
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+
+    WebSocketMessage:
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: string
+          description: Message type
+        data:
+          type: object
+          additionalProperties: true
+          description: Message data
+        timestamp:
+          type: string
+          format: date-time
+          description: Message timestamp
+
+    TaskStatusUpdate:
+      type: object
+      required:
+        - task_id
+        - status
+        - phase
+        - progress
+      properties:
+        task_id:
+          type: string
+          description: Task ID
+        status:
+          type: string
+          description: Task status
+        phase:
+          type: string
+          description: Workflow phase
+        progress:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Progress percentage
+        message:
+          type: string
+          nullable: true
+          description: Status message
+        agent_updates:
+          type: array
+          items:
+            type: object
+          description: Agent updates
+        timestamp:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    AgentStatusUpdate:
+      type: object
+      required:
+        - agent_id
+        - task_id
+        - status
+      properties:
+        agent_id:
+          type: string
+          description: Agent ID
+        task_id:
+          type: string
+          description: Task ID
+        status:
+          type: string
+          description: Agent status
+        progress:
+          type: number
+          minimum: 0
+          maximum: 1
+          nullable: true
+          description: Progress percentage
+        message:
+          type: string
+          nullable: true
+          description: Status message
+        result:
+          type: object
+          additionalProperties: true
+          nullable: true
+          description: Execution result
+        timestamp:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    BatchTaskAction:
+      type: object
+      required:
+        - task_ids
+        - action
+      properties:
+        task_ids:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          maxItems: 100
+          description: List of task IDs
+        action:
+          type: string
+          description: Action to perform
+        reason:
+          type: string
+          nullable: true
+          description: Action reason
+
+    BatchOperationResult:
+      type: object
+      required:
+        - total
+        - successful
+        - failed
+        - results
+        - errors
+      properties:
+        total:
+          type: integer
+          description: Total number of operations
+        successful:
+          type: integer
+          description: Number of successful operations
+        failed:
+          type: integer
+          description: Number of failed operations
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              task_id:
+                type: string
+              success:
+                type: boolean
+              message:
+                type: string
+          description: Detailed results
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              task_id:
+                type: string
+              error:
+                type: string
+          description: Error information
+
+    TaskStatistics:
+      type: object
+      required:
+        - total_tasks
+        - completed_tasks
+        - failed_tasks
+        - running_tasks
+        - pending_tasks
+        - average_execution_time
+        - success_rate
+        - tasks_by_type
+        - tasks_by_priority
+      properties:
+        total_tasks:
+          type: integer
+          description: Total number of tasks
+        completed_tasks:
+          type: integer
+          description: Number of completed tasks
+        failed_tasks:
+          type: integer
+          description: Number of failed tasks
+        running_tasks:
+          type: integer
+          description: Number of running tasks
+        pending_tasks:
+          type: integer
+          description: Number of pending tasks
+        average_execution_time:
+          type: number
+          description: Average execution time in seconds
+        success_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Success rate
+        tasks_by_type:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Tasks grouped by type
+        tasks_by_priority:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Tasks grouped by priority
+
+    SystemMetrics:
+      type: object
+      required:
+        - cpu_usage
+        - memory_usage
+        - active_workflows
+        - active_agents
+        - requests_per_minute
+        - average_response_time
+        - error_rate
+        - uptime_seconds
+      properties:
+        cpu_usage:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: CPU usage percentage
+        memory_usage:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Memory usage percentage
+        active_workflows:
+          type: integer
+          description: Number of active workflows
+        active_agents:
+          type: integer
+          description: Number of active agents
+        requests_per_minute:
+          type: number
+          description: Requests per minute
+        average_response_time:
+          type: number
+          description: Average response time in milliseconds
+        error_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Error rate
+        uptime_seconds:
+          type: integer
+          description: System uptime in seconds
+        timestamp:
+          type: string
+          format: date-time
+          description: Metrics timestamp
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error_code: BAD_REQUEST
+            error_message: Invalid request parameters
+            timestamp: "2024-01-01T00:00:00Z"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error_code: UNAUTHORIZED
+            error_message: Authentication required
+            timestamp: "2024-01-01T00:00:00Z"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error_code: NOT_FOUND
+            error_message: Resource not found
+            timestamp: "2024-01-01T00:00:00Z"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error_code: INTERNAL_ERROR
+            error_message: Internal server error
+            timestamp: "2024-01-01T00:00:00Z"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+security:
+  - BearerAuth: []
+
+examples:
+  CreateTask:
+    summary: Create a new development task
+    value:
+      title: "Implement user authentication"
+      description: "Add JWT-based authentication system with login and registration endpoints"
+      task_type: "development"
+      priority: 3
+      requirements:
+        - "JWT token generation"
+        - "Password hashing with bcrypt"
+        - "Login endpoint"
+        - "Registration endpoint"
+        - "Token refresh mechanism"
+      constraints:
+        - "Must use secure password storage"
+        - "Token expiration should be configurable"
+      input_data:
+        user_requirements: "Secure and scalable authentication"
+        tech_stack: "FastAPI, JWT, bcrypt"
+      execution_mode: "adaptive"
+      timeout_seconds: 7200
+
+  TaskActionPause:
+    summary: Pause a running task
+    value:
+      action: "pause"
+      reason: "Maintenance window"
+      metadata:
+        maintenance_type: "scheduled"
+        duration_hours: 2
+
+  BatchTaskOperation:
+    summary: Cancel multiple tasks
+    value:
+      task_ids:
+        - "task_123"
+        - "task_456"
+        - "task_789"
+      action: "cancel"
+      reason: "Project scope change"

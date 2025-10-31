@@ -1,0 +1,12 @@
+# 生产环境依赖
+-r base.txt
+
+# 生产部署
+gunicorn>=21.0.0
+gevent>=23.0.0
+
+# 安全
+cryptography>=41.0.0
+
+# 性能优化
+orjson>=3.9.0

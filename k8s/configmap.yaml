@@ -1,0 +1,109 @@
+# Kubernetes ConfigMap配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: langgraph-config
+  namespace: langgraph-multi-agent
+data:
+  # 应用配置
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "info"
+  PYTHONPATH: "/app"
+  
+  # 数据库配置
+  DATABASE_URL: "postgresql://langgraph_user:langgraph_password@postgres:5432/langgraph_db"
+  REDIS_URL: "redis://redis:6379/0"
+  
+  # LangSmith配置
+  LANGSMITH_PROJECT: "langgraph-multi-agent"
+  
+  # API配置
+  API_HOST: "0.0.0.0"
+  API_PORT: "8000"
+  
+  # 监控配置
+  ENABLE_METRICS: "true"
+  METRICS_PORT: "9090"
+  
+  # 安全配置
+  ENABLE_AUTH: "true"
+  ENABLE_RATE_LIMIT: "true"
+  RATE_LIMIT_RPM: "1000"
+  
+  # CORS配置
+  CORS_ORIGINS: '["http://localhost:3000", "https://yourdomain.com"]'
+  
+  # 应用配置文件
+  app.yaml: |
+    server:
+      host: "0.0.0.0"
+      port: 8000
+      workers: 4
+      
+    database:
+      url: "postgresql://langgraph_user:langgraph_password@postgres:5432/langgraph_db"
+      pool_size: 20
+      max_overflow: 30
+      
+    redis:
+      url: "redis://redis:6379/0"
+      max_connections: 100
+      
+    logging:
+      level: "info"
+      format: "json"
+      
+    security:
+      enable_auth: true
+      enable_rate_limit: true
+      rate_limit_rpm: 1000
+      
+    monitoring:
+      enable_metrics: true
+      enable_tracing: true
+      
+    langsmith:
+      project: "langgraph-multi-agent"
+      
+  # Nginx配置
+  nginx.conf: |
+    upstream langgraph_backend {
+        server langgraph-multi-agent:8000;
+    }
+    
+    server {
+        listen 80;
+        server_name localhost;
+        
+        # MVP2前端静态文件
+        location /mvp2/ {
+            alias /usr/share/nginx/html/mvp2/;
+            try_files $uri $uri/ /mvp2/88.html;
+        }
+        
+        # API代理
+        location /api/ {
+            proxy_pass http://langgraph_backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        # WebSocket代理
+        location /api/v1/mvp2/ws {
+            proxy_pass http://langgraph_backend;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        # 健康检查
+        location /health {
+            proxy_pass http://langgraph_backend/health;
+        }
+    }

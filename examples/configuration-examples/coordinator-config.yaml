@@ -1,0 +1,68 @@
+# 协调智能体配置示例
+agent:
+  name: "Coordinator"
+  id: "coordinator-001"
+  type: "coordinator"
+  version: "1.0.0"
+
+capabilities:
+  name: "Coordinator"
+  description: "协调各智能体之间的协作，处理冲突和资源分配"
+  input_types: ["coordination_request", "conflict_resolution", "resource_allocation", "task_synchronization"]
+  output_types: ["coordination_result", "resolution", "allocation", "sync_status"]
+  max_concurrent_tasks: 15
+  specializations: ["coordination", "negotiation", "conflict_resolution", "resource_management"]
+
+configuration:
+  # 协调配置
+  coordination_mode: "centralized"  # centralized, distributed, hierarchical, peer_to_peer
+  coordination_interval: 15  # 秒
+  max_managed_agents: 50
+
+  # 冲突解决配置
+  conflict_resolution_strategy: "priority_based"  # priority_based, negotiation, arbitration, collaborative
+  conflict_detection_interval: 30  # 秒
+  auto_conflict_resolution: true
+  conflict_history_retention: 1000  # 条记录
+
+  # 资源管理配置
+  resource_pool_size:
+    cpu_cores: 16
+    memory_gb: 64
+    storage_gb: 1000
+    network_bandwidth_mbps: 100
+
+  # 消息路由配置
+  message_routing_enabled: true
+  priority_queue_enabled: true
+  message_ttl: 3600  # 秒
+  batch_processing_size: 100
+
+  # 协作会话配置
+  session_timeout: 7200  # 秒
+  max_concurrent_sessions: 100
+  session_history_retention: 168  # 小时
+
+dependencies:
+  - "redis"
+  - "postgresql"
+  - "message_bus"
+  - "meta_agent"
+
+resources:
+  memory_mb: 768
+  cpu_cores: 3
+  storage_gb: 15
+  network_bandwidth_mbps: 80
+
+security:
+  authentication_required: true
+  authorization_level: "coordinator"
+  encryption_enabled: true
+  session_security: true
+
+performance:
+  message_processing_threads: 4
+  conflict_resolution_timeout: 300  # 秒
+  resource_allocation_timeout: 60  # 秒
+  coordination_metrics_enabled: true

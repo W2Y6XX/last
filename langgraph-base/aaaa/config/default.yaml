@@ -1,0 +1,135 @@
+# LangGraph 多智能体系统默认配置
+
+# 系统配置
+system:
+  name: "LangGraph Agent System"
+  version: "0.1.0"
+  debug: false
+  log_level: "INFO"
+
+# 服务器配置
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  timeout: 300
+  max_connections: 1000
+
+# 消息总线配置
+message_bus:
+  max_queue_size: 1000
+  message_retention_hours: 24
+  processing_interval_seconds: 0.01
+  max_message_size_mb: 10
+
+# 智能体注册表配置
+agent_registry:
+  heartbeat_timeout_seconds: 300
+  cleanup_interval_seconds: 60
+  max_agents: 100
+  auto_cleanup: true
+
+# 任务管理器配置
+task_manager:
+  max_concurrent_tasks: 100
+  default_timeout_seconds: 3600
+  retry_attempts: 3
+  cleanup_interval_hours: 1
+  task_retention_days: 30
+
+# 资源管理器配置
+resource_manager:
+  monitoring_interval_seconds: 60
+  rebalance_interval_seconds: 600
+  default_agent_limits:
+    max_concurrent_tasks: 5
+    max_cpu_usage: 80.0
+    max_memory_usage: 80.0
+  load_balancing:
+    enabled: true
+    threshold_percentage: 70.0
+    strategy: "least_loaded"
+
+# 检查点配置
+checkpoint:
+  enabled: true
+  storage_type: "file"  # file, memory, database
+  storage_path: "checkpoints"
+  cleanup_hours: 24
+  auto_save_interval_seconds: 300
+
+# 监控配置
+monitoring:
+  enabled: true
+  metrics_retention_hours: 24
+  alerts_retention_days: 7
+  monitoring_interval_seconds: 30
+  performance_tracking:
+    enabled: true
+    detailed_logging: false
+
+# 数据库配置（可选）
+database:
+  enabled: false
+  type: "sqlite"  # sqlite, postgresql, mysql
+  connection_string: "sqlite:///agent_system.db"
+  pool_size: 10
+  max_overflow: 20
+
+# Redis配置（可选）
+redis:
+  enabled: false
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: null
+  max_connections: 10
+
+# 安全配置
+security:
+  authentication:
+    enabled: false
+    method: "token"  # token, oauth2, basic
+    secret_key: "your-secret-key-here"
+  authorization:
+    enabled: false
+    roles: ["admin", "user", "agent"]
+  ssl:
+    enabled: false
+    cert_file: null
+    key_file: null
+
+# 日志配置
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/agent_system.log"
+  max_size_mb: 100
+  backup_count: 5
+  console_output: true
+
+# API配置
+api:
+  prefix: "/api/v1"
+  cors_enabled: true
+  cors_origins: ["*"]
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+  documentation:
+    enabled: true
+    path: "/docs"
+
+# 健康检查配置
+health_check:
+  enabled: true
+  endpoint: "/health"
+  interval_seconds: 30
+  timeout_seconds: 10
+  detailed_response: false
+
+# 扩展配置
+extensions:
+  custom_agents: []
+  plugins: []
+  middlewares: []

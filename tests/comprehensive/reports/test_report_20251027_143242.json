@@ -1,0 +1,32 @@
+{
+  "report_id": "test_20251027_143224_4070",
+  "test_session_id": "222a8e67-373a-4a80-8cc2-b0a7e3f29af5",
+  "environment": "development",
+  "start_time": "2025-10-27T14:32:24.070247",
+  "end_time": "2025-10-27T14:32:42.603817",
+  "total_duration": 18.53357,
+  "summary": {
+    "total_tests": 0,
+    "total_passed": 0,
+    "total_failed": 0,
+    "total_skipped": 0,
+    "success_rate": 0.0
+  },
+  "suite_results": [
+    {
+      "suite_name": "health_check",
+      "total_tests": 0,
+      "passed_tests": 0,
+      "failed_tests": 0,
+      "skipped_tests": 0,
+      "success_rate": 0.0,
+      "duration": 18.532552,
+      "start_time": "2025-10-27T14:32:24.071247",
+      "end_time": "2025-10-27T14:32:42.603799",
+      "results": []
+    }
+  ],
+  "performance_summary": {},
+  "critical_failures": [],
+  "system_info": {}
+}

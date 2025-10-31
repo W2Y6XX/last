@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph多智能体系统 - 集成测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-8 text-center">
+            🤖 LangGraph多智能体系统
+        </h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- 后端状态 -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <span class="mr-2">🔧</span>
+                    后端服务状态
+                </h2>
+                <div id="backend-status" class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>连接状态:</span>
+                        <span id="backend-connection" class="text-yellow-400">检查中...</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>API地址:</span>
+                        <span class="text-blue-400">http://localhost:8000</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>响应时间:</span>
+                        <span id="backend-response-time" class="text-gray-400">-</span>
+                    </div>
+                </div>
+                <button onclick="testBackend()" class="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                    测试后端连接
+                </button>
+            </div>
+            
+            <!-- 前端状态 -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <span class="mr-2">🌐</span>
+                    前端服务状态
+                </h2>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>服务状态:</span>
+                        <span class="text-green-400">✅ 运行中</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>服务地址:</span>
+                        <span class="text-blue-400">http://localhost:3000</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>当前页面:</span>
+                        <span class="text-green-400">test.html</span>
+                    </div>
+                </div>
+                <a href="88.html" class="mt-4 inline-block bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">
+                    访问主界面
+                </a>
+            </div>
+        </div>
+        
+        <!-- API测试区域 -->
+        <div class="bg-gray-800 p-6 rounded-lg mb-8">
+            <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                <span class="mr-2">🔗</span>
+                API集成测试
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <button onclick="testHealthCheck()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
+                    健康检查
+                </button>
+                <button onclick="testGetTasks()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                    获取任务列表
+                </button>
+                <button onclick="testCreateTask()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded">
+                    创建测试任务
+                </button>
+            </div>
+            
+            <div class="bg-gray-900 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">测试结果:</h3>
+                <pre id="test-results" class="text-sm text-gray-300 whitespace-pre-wrap">等待测试...</pre>
+            </div>
+        </div>
+        
+        <!-- 系统信息 -->
+        <div class="bg-gray-800 p-6 rounded-lg">
+            <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                <span class="mr-2">📊</span>
+                系统信息
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">后端功能:</h3>
+                    <ul class="space-y-1 text-sm">
+                        <li>✅ FastAPI应用框架</li>
+                        <li>✅ 多智能体工作流</li>
+                        <li>✅ 任务管理API</li>
+                        <li>✅ 状态管理系统</li>
+                        <li>✅ 错误处理机制</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">前端功能:</h3>
+                    <ul class="space-y-1 text-sm">
+                        <li>✅ 响应式界面</li>
+                        <li>✅ 实时数据展示</li>
+                        <li>✅ 任务管理界面</li>
+                        <li>✅ 智能体监控</li>
+                        <li>✅ API集成</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let apiClient;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.apiClient) {
+                apiClient = window.apiClient;
+                testBackend();
+            } else {
+                console.error('API客户端未加载');
+            }
+        });
+        
+        // 测试后端连接
+        async function testBackend() {
+            const statusEl = document.getElementById('backend-connection');
+            const timeEl = document.getElementById('backend-response-time');
+            
+            statusEl.textContent = '检查中...';
+            statusEl.className = 'text-yellow-400';
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch('http://localhost:8000/health');
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                if (response.ok) {
+                    statusEl.textContent = '✅ 连接正常';
+                    statusEl.className = 'text-green-400';
+                    timeEl.textContent = responseTime + 'ms';
+                } else {
+                    statusEl.textContent = '❌ 连接异常';
+                    statusEl.className = 'text-red-400';
+                }
+            } catch (error) {
+                statusEl.textContent = '❌ 连接失败';
+                statusEl.className = 'text-red-400';
+                console.error('后端连接测试失败:', error);
+            }
+        }
+        
+        // 测试健康检查
+        async function testHealthCheck() {
+            const resultsEl = document.getElementById('test-results');
+            resultsEl.textContent = '正在测试健康检查...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                const data = await response.json();
+                
+                resultsEl.textContent = '健康检查结果:\\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultsEl.textContent = '健康检查失败:\\n' + error.message;
+            }
+        }
+        
+        // 测试获取任务列表
+        async function testGetTasks() {
+            const resultsEl = document.getElementById('test-results');
+            resultsEl.textContent = '正在获取任务列表...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/tasks');
+                const data = await response.json();
+                
+                resultsEl.textContent = '任务列表结果:\\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultsEl.textContent = '获取任务列表失败:\\n' + error.message;
+            }
+        }
+        
+        // 测试创建任务
+        async function testCreateTask() {
+            const resultsEl = document.getElementById('test-results');
+            resultsEl.textContent = '正在创建测试任务...';
+            
+            const taskData = {
+                title: '前端集成测试任务',
+                description: '这是一个从前端创建的测试任务',
+                task_type: 'test',
+                priority: 1,
+                requirements: ['前端集成测试'],
+                constraints: ['测试环境']
+            };
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultsEl.textContent = '任务创建成功:\\n' + JSON.stringify(data, null, 2);
+                } else {
+                    const errorData = await response.text();
+                    resultsEl.textContent = '任务创建失败:\\n状态码: ' + response.status + '\\n错误信息: ' + errorData;
+                }
+            } catch (error) {
+                resultsEl.textContent = '任务创建失败:\\n' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

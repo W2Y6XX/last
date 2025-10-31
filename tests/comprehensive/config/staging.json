@@ -1,0 +1,71 @@
+{
+  "environment": "staging",
+  "base_url": "http://staging-api.example.com:8000",
+  "frontend_url": "http://staging.example.com:3000",
+  "timeout": 60,
+  "max_retries": 5,
+  "parallel_execution": true,
+  "debug_mode": false,
+  "verbose_logging": true,
+  "mock_external_services": false,
+  "performance_thresholds": {
+    "max_response_time": 5.0,
+    "min_success_rate": 90.0,
+    "max_memory_usage": 1024,
+    "max_cpu_usage": 80.0,
+    "max_concurrent_users": 100
+  },
+  "test_suites": {
+    "health_check": {
+      "enabled": true,
+      "priority": 1,
+      "timeout": 15,
+      "critical": true
+    },
+    "frontend_tests": {
+      "enabled": true,
+      "priority": 2,
+      "timeout": 90,
+      "browser": "chrome",
+      "headless": true
+    },
+    "api_tests": {
+      "enabled": true,
+      "priority": 3,
+      "timeout": 60,
+      "concurrent_requests": 15
+    },
+    "agent_tests": {
+      "enabled": true,
+      "priority": 4,
+      "timeout": 180,
+      "mock_llm": false
+    },
+    "workflow_tests": {
+      "enabled": true,
+      "priority": 5,
+      "timeout": 240
+    },
+    "integration_tests": {
+      "enabled": true,
+      "priority": 6,
+      "timeout": 400
+    },
+    "performance_tests": {
+      "enabled": true,
+      "priority": 7,
+      "timeout": 800,
+      "load_levels": [10, 25, 50, 100]
+    },
+    "data_tests": {
+      "enabled": true,
+      "priority": 8,
+      "timeout": 90
+    },
+    "error_recovery_tests": {
+      "enabled": true,
+      "priority": 9,
+      "timeout": 180
+    }
+  }
+}

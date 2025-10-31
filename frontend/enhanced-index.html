@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>智能体管理系统 - 增强版</title>
+    
+    <!-- 预加载关键资源 -->
+    <link rel="preload" href="config.js" as="script">
+    <link rel="preload" href="css/responsive.css" as="style">
+    
+    <!-- 基础样式 -->
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- 主题和基础样式 -->
+    <style>
+        /* CSS变量定义 */
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #6b7280;
+            --secondary-hover: #4b5563;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --info-color: #3b82f6;
+            
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --text-muted: #9ca3af;
+            --border-color: #4b5563;
+            
+            --card-bg: #1f2937;
+            --modal-bg: #1f2937;
+            --input-bg: #374151;
+            --input-border: #4b5563;
+            
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 基础重置 */
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* 跳过链接样式 */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: #000;
+            color: #fff;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 1001;
+            border-radius: 4px;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+        
+        /* 主布局 */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .status-indicators {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--error-color);
+            transition: background-color 0.3s ease;
+        }
+        
+        .status-indicator.connected {
+            background: var(--success-color);
+        }
+        
+        .status-indicator.connecting {
+            background: var(--warning-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .app-main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .main-content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* 智能体管理区域 */
+        .agent-management-section {
+            grid-column: 1;
+        }
+        
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .agent-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .agent-card:hover::before {
+            opacity: 1;
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .agent-name {
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+        }
+        
+        .agent-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .agent-status.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+        
+        .agent-status.idle {
+            background: rgba(107, 114, 128, 0.2);
+            color: var(--text-muted);
+        }
+        
+        .agent-status.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error-color);
+        }
+        
+        /* 大模型配置区域 */
+        .llm-config-section {
+            grid-column: 2;
+        }
+        
+        .config-list {
+            margin-top: 1rem;
+        }
+        
+        .config-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .config-info {
+            flex: 1;
+        }
+        
+        .config-name {
+            font-weight: 500;
+            margin: 0 0 0.25rem 0;
+            color: var(--text-primary);
+        }
+        
+        .config-provider {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .config-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* 任务创建区域 */
+        .task-creation-area {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+        }
+        
+        .creation-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .creation-option {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .creation-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .option-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .option-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+        }
+        
+        .option-description {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        /* 加载状态 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(17, 24, 39, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .loading-content {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        /* 动画 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .app-main {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .agent-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .creation-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 高对比度模式 */
+        @media (prefers-contrast: high) {
+            :root {
+                --border-color: #ffffff;
+                --text-secondary: #ffffff;
+            }
+            
+            .card,
+            .agent-card,
+            .config-item,
+            .creation-option {
+                border-width: 2px;
+            }
+        }
+        
+        /* 减少动画模式 */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* 离线模式样式 */
+        .offline-mode {
+            filter: grayscale(0.3);
+        }
+        
+        .offline-mode .status-indicator {
+            background: var(--warning-color);
+        }
+        
+        /* 降级模式样式 */
+        .fallback-mode .card,
+        .fallback-mode .agent-card {
+            box-shadow: none;
+            transition: none;
+        }
+        
+        .fallback-mode .creation-option:hover {
+            transform: none;
+        }
+        
+        /* 辅助功能 */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* 焦点样式 */
+        button:focus,
+        .creation-option:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        
+        /* 打印样式 */
+        @media print {
+            .app-header,
+            .card-actions,
+            .config-actions,
+            .loading-overlay {
+                display: none !important;
+            }
+            
+            .card,
+            .agent-card {
+                border: 1px solid #000;
+                break-inside: avoid;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 跳过链接 -->
+    <a href="#main-content" class="skip-link">跳转到主内容</a>
+    
+    <div class="app-container">
+        <!-- 应用头部 -->
+        <header class="app-header" role="banner">
+            <div class="header-content">
+                <h1 class="app-title">智能体管理系统</h1>
+                <div class="header-actions">
+                    <div class="test-tools" style="margin-right: 15px;">
+                        <a href="test-interaction-fix.html" 
+                           class="btn btn-secondary" 
+                           style="text-decoration: none; font-size: 12px; padding: 6px 12px;"
+                           title="交互修复系统测试">
+                            🔧 修复测试
+                        </a>
+                        <a href="test-dialog-system.html" 
+                           class="btn btn-secondary" 
+                           style="text-decoration: none; font-size: 12px; padding: 6px 12px; margin-left: 5px;"
+                           title="对话系统测试">
+                            💬 对话测试
+                        </a>
+                        <a href="test-llm-config-enhanced.html" 
+                           class="btn btn-secondary" 
+                           style="text-decoration: none; font-size: 12px; padding: 6px 12px; margin-left: 5px;"
+                           title="增强版LLM配置测试">
+                            🤖 LLM配置
+                        </a>
+                    </div>
+                    <div class="status-indicators" aria-label="系统状态">
+                        <div class="status-indicator connection-status-indicator" 
+                             title="连接状态" 
+                             aria-label="连接状态指示器"></div>
+                        <div class="status-indicator sync-status-indicator" 
+                             title="同步状态" 
+                             aria-label="同步状态指示器"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 主要内容 -->
+        <main class="app-main" id="main-content" role="main">
+            <div class="main-content">
+                <!-- 智能体管理区域 -->
+                <section class="agent-management-section" data-section="agents" aria-labelledby="agents-title">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title" id="agents-title">智能体管理</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-secondary" 
+                                        id="refreshAgents"
+                                        data-tooltip="刷新智能体状态"
+                                        aria-label="刷新智能体状态">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="agent-grid" id="agentGrid" role="region" aria-label="智能体列表">
+                            <!-- 智能体卡片将在这里动态生成 -->
+                            <div class="agent-card fade-in">
+                                <div class="agent-header">
+                                    <h3 class="agent-name">元智能体</h3>
+                                    <span class="agent-status active">活跃</span>
+                                </div>
+                                <p class="agent-description">负责任务分析和规划的核心智能体</p>
+                                <div class="agent-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">执行次数</span>
+                                        <span class="stat-value">156</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">成功率</span>
+                                        <span class="stat-value">98.7%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card fade-in">
+                                <div class="agent-header">
+                                    <h3 class="agent-name">任务分解器</h3>
+                                    <span class="agent-status idle">空闲</span>
+                                </div>
+                                <p class="agent-description">将复杂任务分解为可执行的子任务</p>
+                                <div class="agent-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">执行次数</span>
+                                        <span class="stat-value">89</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">成功率</span>
+                                        <span class="stat-value">95.5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card fade-in">
+                                <div class="agent-header">
+                                    <h3 class="agent-name">协调器</h3>
+                                    <span class="agent-status active">活跃</span>
+                                </div>
+                                <p class="agent-description">协调多个智能体的协作执行</p>
+                                <div class="agent-stats">
+                                    <div class="stat-item">
+                                        <span class="stat-label">执行次数</span>
+                                        <span class="stat-value">234</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-label">成功率</span>
+                                        <span class="stat-value">97.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- 大模型配置区域 -->
+                <aside class="llm-config-section" data-section="config" aria-labelledby="config-title">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title" id="config-title">大模型配置</h2>
+                            <div class="card-actions">
+                                <button class="btn btn-primary" 
+                                        id="addConfig"
+                                        data-tooltip="添加新的大模型配置"
+                                        aria-label="添加新的大模型配置">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                    </svg>
+                                    添加配置
+                                </button>
+                            </div>
+                        </div>
+                        <div class="config-list" id="configList" role="region" aria-label="配置列表">
+                            <!-- 配置项将在这里动态生成 -->
+                            <div class="config-item fade-in">
+                                <div class="config-info">
+                                    <h4 class="config-name">SiliconFlow</h4>
+                                    <p class="config-provider">默认配置</p>
+                                </div>
+                                <div class="config-actions">
+                                    <button class="btn btn-sm btn-secondary" 
+                                            data-tooltip="测试连接"
+                                            aria-label="测试SiliconFlow连接">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" 
+                                            data-tooltip="编辑配置"
+                                            aria-label="编辑SiliconFlow配置">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+            
+            <!-- 任务创建区域 -->
+            <section class="task-creation-area" data-section="tasks" aria-labelledby="tasks-title">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title" id="tasks-title">任务创建</h2>
+                    </div>
+                    <div class="creation-options">
+                        <div class="creation-option" 
+                             tabindex="0" 
+                             role="button" 
+                             aria-label="选择智能引导创建方式"
+                             data-mode="guided">
+                            <div class="option-icon">🤖</div>
+                            <h3 class="option-title">智能引导创建</h3>
+                            <p class="option-description">通过元智能体对话，获得智能的任务规划建议</p>
+                        </div>
+                        
+                        <div class="creation-option" 
+                             tabindex="0" 
+                             role="button" 
+                             aria-label="选择直接创建方式"
+                             data-mode="direct">
+                            <div class="option-icon">✏️</div>
+                            <h3 class="option-title">直接创建</h3>
+                            <p class="option-description">直接填写任务信息，快速创建任务</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- 加载指示器 -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;" role="status" aria-live="polite">
+        <div class="loading-content">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <div class="loading-text">系统初始化中...</div>
+        </div>
+    </div>
+    
+    <!-- 脚本加载 -->
+    <script>
+        // 显示加载指示器
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        
+        // 记录页面开始加载时间
+        window.pageLoadStart = performance.now();
+        
+        // 基础错误处理
+        window.addEventListener('error', function(event) {
+            console.error('页面错误:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未处理的Promise拒绝:', event.reason);
+        });
+    </script>
+    
+    <!-- 按顺序加载脚本 -->
+    <script src="config.js"></script>
+    <script src="js/ux-performance-init.js"></script>
+    <script src="js/managers/llm-config-manager.js"></script>
+    
+    <!-- 交互修复系统初始化 -->
+    <script type="module" src="js/init/interaction-fix-init.js"></script>
+    
+    <!-- LLM配置模态框 -->
+    <div id="llmConfigModalContainer"></div>
+    <script>
+        // 动态加载LLM配置模态框
+        fetch('llm-config-modal.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('llmConfigModalContainer').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('加载LLM配置模态框失败:', error);
+            });
+    </script>
+    
+    <!-- 应用初始化脚本 -->
+    <script>
+        class EnhancedApp {
+            constructor() {
+                this.initialized = false;
+                this.modules = {};
+                
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    console.log('🚀 Enhanced App initializing...');
+                    
+                    // 等待UX性能模块加载完成
+                    await this.waitForUXPerformance();
+                    
+                    // 初始化应用模块
+                    await this.initializeAppModules();
+                    
+                    // 设置事件监听器
+                    this.setupEventListeners();
+                    
+                    // 加载初始数据
+                    await this.loadInitialData();
+                    
+                    // 隐藏加载指示器
+                    this.hideLoadingOverlay();
+                    
+                    this.initialized = true;
+                    console.log('✅ Enhanced App initialized successfully');
+                    
+                    // 显示初始化完成通知
+                    if (window.feedbackManager) {
+                        window.feedbackManager.showSuccess(
+                            '系统就绪',
+                            '智能体管理系统已成功加载'
+                        );
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Enhanced App initialization failed:', error);
+                    this.handleInitializationError(error);
+                }
+            }
+            
+            waitForUXPerformance() {
+                return new Promise((resolve) => {
+                    if (window.UXPerformanceInit && window.UXPerformanceInit.isReady()) {
+                        resolve();
+                        return;
+                    }
+                    
+                    const checkReady = () => {
+                        if (window.UXPerformanceInit && window.UXPerformanceInit.isReady()) {
+                            resolve();
+                        } else {
+                            setTimeout(checkReady, 100);
+                        }
+                    };
+                    
+                    // 监听UX性能模块就绪事件
+                    window.addEventListener('uxPerformanceReady', resolve, { once: true });
+                    
+                    checkReady();
+                    
+                    // 超时处理
+                    setTimeout(resolve, 10000);
+                });
+            }
+            
+            async initializeAppModules() {
+                // 初始化智能体管理器
+                if (window.AgentManager) {
+                    this.modules.agentManager = new window.AgentManager();
+                }
+                
+                // 初始化大模型配置管理器
+                if (window.LLMConfigManager) {
+                    this.modules.llmConfigManager = new window.LLMConfigManager();
+                }
+                
+                // 初始化元智能体对话管理器
+                if (window.MetaAgentChatManager) {
+                    this.modules.metaAgentChatManager = new window.MetaAgentChatManager();
+                }
+            }
+            
+            setupEventListeners() {
+                // 刷新智能体按钮
+                const refreshBtn = document.getElementById('refreshAgents');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', () => {
+                        this.refreshAgents();
+                    });
+                }
+                
+                // 添加配置按钮
+                const addConfigBtn = document.getElementById('addConfig');
+                if (addConfigBtn) {
+                    addConfigBtn.addEventListener('click', () => {
+                        this.showAddConfigDialog();
+                    });
+                }
+                
+                // 任务创建选项
+                const creationOptions = document.querySelectorAll('.creation-option');
+                creationOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        const mode = option.dataset.mode;
+                        this.handleTaskCreation(mode);
+                    });
+                    
+                    option.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            const mode = option.dataset.mode;
+                            this.handleTaskCreation(mode);
+                        }
+                    });
+                });
+                
+                // 监听网络状态变化
+                window.addEventListener('online', () => {
+                    this.updateConnectionStatus('connected');
+                });
+                
+                window.addEventListener('offline', () => {
+                    this.updateConnectionStatus('disconnected');
+                });
+                
+                // 监听WebSocket状态变化
+                window.addEventListener('websocket:connected', () => {
+                    this.updateConnectionStatus('connected');
+                });
+                
+                window.addEventListener('websocket:disconnected', () => {
+                    this.updateConnectionStatus('disconnected');
+                });
+            }
+            
+            async loadInitialData() {
+                try {
+                    // 加载智能体数据
+                    if (this.modules.agentManager) {
+                        await this.modules.agentManager.loadAgents();
+                    }
+                    
+                    // 加载配置数据
+                    if (this.modules.llmConfigManager) {
+                        await this.modules.llmConfigManager.loadConfigs();
+                    }
+                    
+                    // 连接WebSocket
+                    if (window.wsManager) {
+                        await window.wsManager.connect();
+                    }
+                    
+                } catch (error) {
+                    console.error('Failed to load initial data:', error);
+                    
+                    if (window.feedbackManager) {
+                        window.feedbackManager.showWarning(
+                            '数据加载',
+                            '部分数据加载失败，系统将在后台重试'
+                        );
+                    }
+                }
+            }
+            
+            hideLoadingOverlay() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                    }, 300);
+                }
+            }
+            
+            handleInitializationError(error) {
+                console.error('App initialization error:', error);
+                
+                // 隐藏加载指示器
+                this.hideLoadingOverlay();
+                
+                // 显示错误信息
+                if (window.feedbackManager) {
+                    window.feedbackManager.showError(
+                        '初始化失败',
+                        '系统初始化过程中发生错误，部分功能可能无法正常使用'
+                    );
+                } else {
+                    alert('系统初始化失败，请刷新页面重试');
+                }
+                
+                // 启用降级模式
+                document.body.classList.add('fallback-mode');
+            }
+            
+            async refreshAgents() {
+                if (window.feedbackManager) {
+                    const loadingId = window.feedbackManager.showLoading('刷新智能体状态...');
+                    
+                    try {
+                        if (this.modules.agentManager) {
+                            await this.modules.agentManager.refreshAgents();
+                        }
+                        
+                        window.feedbackManager.hideLoading(loadingId);
+                        window.feedbackManager.showSuccess('刷新完成', '智能体状态已更新');
+                        
+                    } catch (error) {
+                        window.feedbackManager.hideLoading(loadingId);
+                        window.feedbackManager.showError('刷新失败', error.message);
+                    }
+                }
+            }
+            
+            showAddConfigDialog() {
+                // 打开LLM配置模态框
+                if (typeof openLLMConfigModal === 'function') {
+                    openLLMConfigModal();
+                } else {
+                    // 如果模态框还没加载完成，稍后重试
+                    setTimeout(() => {
+                        if (typeof openLLMConfigModal === 'function') {
+                            openLLMConfigModal();
+                        } else {
+                            if (window.feedbackManager) {
+                                window.feedbackManager.showError(
+                                    '加载失败',
+                                    '配置界面加载失败，请刷新页面重试'
+                                );
+                            }
+                        }
+                    }, 1000);
+                }
+            }
+            
+            handleTaskCreation(mode) {
+                if (window.feedbackManager) {
+                    const modeText = mode === 'guided' ? '智能引导创建' : '直接创建';
+                    window.feedbackManager.showInfo(
+                        '任务创建',
+                        `${modeText}功能正在开发中，敬请期待`
+                    );
+                }
+            }
+            
+            updateConnectionStatus(status) {
+                const indicator = document.querySelector('.connection-status-indicator');
+                if (indicator) {
+                    indicator.className = `status-indicator connection-status-indicator ${status}`;
+                    
+                    const statusText = {
+                        'connected': '已连接',
+                        'disconnected': '已断开',
+                        'connecting': '连接中',
+                        'error': '连接错误'
+                    };
+                    
+                    indicator.title = `连接状态: ${statusText[status] || status}`;
+                }
+            }
+        }
+        
+        // 初始化增强应用
+        window.addEventListener('DOMContentLoaded', () => {
+            window.enhancedApp = new EnhancedApp();
+        });
+        
+        // 页面加载完成后的处理
+        window.addEventListener('load', () => {
+            const loadTime = performance.now() - window.pageLoadStart;
+            console.log(`页面加载完成，耗时: ${loadTime.toFixed(2)}ms`);
+        });
+    </script>
+</body>
+</html>

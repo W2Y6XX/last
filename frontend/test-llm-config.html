@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大模型配置测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #2d3561 50%, #4a3d8a 75%, #6b5b95 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        }
+        
+        .btn-blue {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-blue:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold mb-8 text-center">
+            🧠 大模型配置测试
+        </h1>
+        
+        <!-- 大模型配置区域 -->
+        <div class="glass-morphism rounded-xl p-6 mb-6" id="llm-config-section">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-xl font-semibold text-blue-100 flex items-center">
+                        <i class="fas fa-brain mr-2 text-purple-300"></i>
+                        大模型配置
+                    </h3>
+                    <p class="text-sm opacity-80 mt-1">配置和管理大语言模型，为智能体提供AI能力</p>
+                </div>
+                <button onclick="openLLMConfigModal()" class="btn-blue px-6 py-3 text-white rounded-lg flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    添加配置
+                </button>
+            </div>
+            
+            <!-- 配置统计摘要 -->
+            <div id="llm-config-summary" class="mb-6 p-4 glass-morphism rounded-lg">
+                <!-- 统计信息将通过JavaScript动态生成 -->
+            </div>
+            
+            <!-- 配置列表 -->
+            <div id="llm-config-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- 配置卡片将通过JavaScript动态生成 -->
+                <div class="glass-morphism rounded-lg p-4 text-blue-100 text-center border-2 border-dashed border-purple-300 border-opacity-50">
+                    <div class="py-8">
+                        <i class="fas fa-plus-circle text-4xl text-purple-300 mb-3"></i>
+                        <p class="text-lg font-medium">添加大模型配置</p>
+                        <p class="text-sm opacity-75 mt-1">点击上方按钮开始配置</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 测试按钮 -->
+        <div class="text-center">
+            <button onclick="testLLMConfigManager()" class="btn-blue px-8 py-4 text-white rounded-lg text-lg">
+                <i class="fas fa-flask mr-2"></i>
+                测试配置管理器
+            </button>
+        </div>
+        
+        <!-- 测试结果 -->
+        <div id="test-results" class="mt-8 glass-morphism rounded-xl p-6 hidden">
+            <h3 class="text-xl font-semibold mb-4">测试结果</h3>
+            <pre id="test-output" class="text-sm bg-black bg-opacity-30 p-4 rounded overflow-auto max-h-96"></pre>
+        </div>
+    </div>
+
+    <!-- 大模型配置模态框 -->
+    <div id="llm-config-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div class="glass-morphism rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-blue-100 flex items-center">
+                    <i class="fas fa-brain mr-2 text-purple-300"></i>
+                    <span id="llm-modal-title">添加大模型配置</span>
+                </h3>
+                <button onclick="closeLLMConfigModal()" class="text-blue-100 hover:text-purple-300 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="llm-config-form" class="space-y-6">
+                <!-- 基本信息 -->
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold text-blue-100 border-b border-purple-300 border-opacity-30 pb-2">基本信息</h4>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-blue-100 mb-2">配置名称 *</label>
+                        <input type="text" id="config-name" name="name" required
+                               class="w-full p-3 rounded-lg glass-morphism text-blue-100 placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                               placeholder="请输入配置名称">
+                        <div class="text-red-400 text-sm mt-1 hidden" id="name-error"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-blue-100 mb-2">提供商 *</label>
+                        <select id="config-provider" name="provider" required
+                                class="w-full p-3 rounded-lg glass-morphism text-blue-100 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                onchange="updateProviderFields()">
+                            <option value="">请选择提供商</option>
+                            <option value="siliconflow">SiliconFlow</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic</option>
+                            <option value="local">本地部署</option>
+                        </select>
+                        <div class="text-red-400 text-sm mt-1 hidden" id="provider-error"></div>
+                    </div>
+                </div>
+                
+                <!-- 连接配置 -->
+                <div class="space-y-4" id="connection-config">
+                    <h4 class="text-lg font-semibold text-blue-100 border-b border-purple-300 border-opacity-30 pb-2">连接配置</h4>
+                    
+                    <div id="api-key-field">
+                        <label class="block text-sm font-medium text-blue-100 mb-2">API密钥 *</label>
+                        <div class="relative">
+                            <input type="password" id="config-api-key" name="apiKey"
+                                   class="w-full p-3 pr-12 rounded-lg glass-morphism text-blue-100 placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                   placeholder="请输入API密钥">
+                            <button type="button" onclick="togglePasswordVisibility('config-api-key')" 
+                                    class="absolute right-3 top-3 text-blue-100 hover:text-purple-300">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="text-red-400 text-sm mt-1 hidden" id="apiKey-error"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-blue-100 mb-2">基础URL</label>
+                        <input type="url" id="config-base-url" name="baseUrl"
+                               class="w-full p-3 rounded-lg glass-morphism text-blue-100 placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                               placeholder="API基础URL">
+                        <div class="text-red-400 text-sm mt-1 hidden" id="baseUrl-error"></div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-blue-100 mb-2">模型名称 *</label>
+                        <input type="text" id="config-model" name="model" required
+                               class="w-full p-3 rounded-lg glass-morphism text-blue-100 placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                               placeholder="请输入模型名称">
+                        <div class="text-red-400 text-sm mt-1 hidden" id="model-error"></div>
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="flex justify-between items-center pt-6 border-t border-purple-300 border-opacity-30">
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="testLLMConnection()" id="test-connection-btn"
+                                class="px-4 py-2 glass-morphism rounded-lg text-blue-100 hover:bg-white hover:bg-opacity-10 transition-all flex items-center">
+                            <i class="fas fa-plug mr-2"></i>
+                            测试连接
+                        </button>
+                        <div id="test-result" class="flex items-center text-sm hidden">
+                            <i class="fas fa-spinner fa-spin mr-2 text-yellow-400"></i>
+                            <span>测试中...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="closeLLMConfigModal()"
+                                class="px-6 py-3 glass-morphism rounded-lg text-blue-100 hover:bg-white hover:bg-opacity-10 transition-all">
+                            取消
+                        </button>
+                        <button type="submit" id="save-config-btn"
+                                class="btn-blue px-6 py-3 text-white rounded-lg flex items-center">
+                            <i class="fas fa-save mr-2"></i>
+                            保存配置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 引入脚本 -->
+    <script src="js/core/form-validator.js"></script>
+    <script src="js/managers/llm-config-manager.js"></script>
+    
+    <script>
+        // 全局变量
+        let currentEditingConfigId = null;
+        let formValidator = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化表单验证器
+            if (typeof FormValidator !== 'undefined') {
+                formValidator = new FormValidator();
+            }
+            
+            // 初始化大模型配置管理器
+            if (typeof LLMConfigManager !== 'undefined') {
+                window.llmConfigManager = new LLMConfigManager();
+                loadLLMConfigs();
+                setupFormValidation();
+            }
+        });
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            // 创建通知元素
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // 测试配置管理器
+        function testLLMConfigManager() {
+            const output = document.getElementById('test-output');
+            const results = document.getElementById('test-results');
+            
+            let log = '';
+            
+            try {
+                log += '=== 大模型配置管理器测试 ===\n\n';
+                
+                // 测试管理器初始化
+                log += '1. 测试管理器初始化\n';
+                if (window.llmConfigManager) {
+                    log += '✓ 配置管理器已初始化\n';
+                    log += `✓ 支持的提供商: ${window.llmConfigManager.getSupportedProviders().map(p => p.name).join(', ')}\n`;
+                } else {
+                    log += '✗ 配置管理器未初始化\n';
+                }
+                
+                // 测试配置列表
+                log += '\n2. 测试配置列表\n';
+                const configs = window.llmConfigManager.getAllConfigs();
+                log += `✓ 当前配置数量: ${configs.length}\n`;
+                
+                if (configs.length > 0) {
+                    configs.forEach((config, index) => {
+                        log += `  配置 ${index + 1}: ${config.name} (${config.provider})\n`;
+                    });
+                }
+                
+                // 测试活跃配置
+                log += '\n3. 测试活跃配置\n';
+                const activeConfig = window.llmConfigManager.getActiveConfig();
+                if (activeConfig) {
+                    log += `✓ 活跃配置: ${activeConfig.name}\n`;
+                } else {
+                    log += '- 无活跃配置\n';
+                }
+                
+                // 测试表单验证器
+                log += '\n4. 测试表单验证器\n';
+                if (formValidator) {
+                    log += '✓ 表单验证器已初始化\n';
+                    
+                    // 测试验证规则
+                    const testResult = formValidator.validateField('test@example.com', ['email']);
+                    log += `✓ 邮箱验证测试: ${testResult.isValid ? '通过' : '失败'}\n`;
+                } else {
+                    log += '✗ 表单验证器未初始化\n';
+                }
+                
+                log += '\n=== 测试完成 ===\n';
+                
+            } catch (error) {
+                log += `\n✗ 测试过程中发生错误: ${error.message}\n`;
+                console.error('测试错误:', error);
+            }
+            
+            output.textContent = log;
+            results.classList.remove('hidden');
+        }
+
+        // 包含所有必要的函数（从88.html复制）
+        function openLLMConfigModal(configId = null) {
+            currentEditingConfigId = configId;
+            const modal = document.getElementById('llm-config-modal');
+            const title = document.getElementById('llm-modal-title');
+            const form = document.getElementById('llm-config-form');
+            
+            if (configId) {
+                title.textContent = '编辑大模型配置';
+                loadConfigForEdit(configId);
+            } else {
+                title.textContent = '添加大模型配置';
+                form.reset();
+                clearFormErrors();
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeLLMConfigModal() {
+            const modal = document.getElementById('llm-config-modal');
+            modal.classList.add('hidden');
+            currentEditingConfigId = null;
+            document.getElementById('llm-config-form').reset();
+            clearFormErrors();
+        }
+
+        function updateProviderFields() {
+            const provider = document.getElementById('config-provider').value;
+            const apiKeyField = document.getElementById('api-key-field');
+            
+            if (!window.llmConfigManager) return;
+            
+            const providers = window.llmConfigManager.getSupportedProviders();
+            const providerInfo = providers.find(p => p.key === provider);
+            
+            if (providerInfo) {
+                // 设置默认值
+                Object.keys(providerInfo.defaultValues).forEach(key => {
+                    const field = document.getElementById(`config-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`);
+                    if (field && !field.value) {
+                        field.value = providerInfo.defaultValues[key];
+                    }
+                });
+                
+                // 控制API密钥字段显示
+                if (providerInfo.requiredFields.includes('apiKey')) {
+                    apiKeyField.style.display = 'block';
+                    document.getElementById('config-api-key').required = true;
+                } else {
+                    apiKeyField.style.display = 'none';
+                    document.getElementById('config-api-key').required = false;
+                }
+            }
+        }
+
+        function togglePasswordVisibility(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = field.nextElementSibling.querySelector('i');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                field.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        function clearFormErrors() {
+            if (formValidator) {
+                formValidator.clearErrors();
+            }
+        }
+
+        function setupFormValidation() {
+            if (!formValidator) return;
+            
+            const form = document.getElementById('llm-config-form');
+            const fields = form.querySelectorAll('input, select');
+            
+            fields.forEach(field => {
+                const fieldName = field.name;
+                if (fieldName && LLMConfigValidationRules[fieldName]) {
+                    formValidator.setupRealTimeValidation(field, LLMConfigValidationRules[fieldName]);
+                }
+            });
+        }
+
+        function loadLLMConfigs() {
+            if (!window.llmConfigManager) return;
+            
+            const configs = window.llmConfigManager.getAllConfigs();
+            const configList = document.getElementById('llm-config-list');
+            
+            // 清空现有内容，但保留添加按钮
+            const addButton = configList.querySelector('.border-dashed');
+            configList.innerHTML = '';
+            if (addButton) {
+                configList.appendChild(addButton);
+            }
+            
+            configs.forEach(config => {
+                const configCard = createLLMConfigCard(config);
+                configList.appendChild(configCard);
+            });
+            
+            updateConfigSummary();
+        }
+
+        function createLLMConfigCard(config) {
+            const card = document.createElement('div');
+            card.className = 'glass-morphism rounded-lg p-4 text-blue-100 hover-scale cursor-pointer';
+            
+            card.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white mr-3">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold">${config.name}</h4>
+                            <p class="text-xs opacity-75">${config.provider}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        ${config.isActive ? '<span class="px-2 py-1 bg-green-500 bg-opacity-30 text-xs rounded-full">活跃</span>' : ''}
+                    </div>
+                </div>
+                
+                <div class="text-sm opacity-80 mb-3">
+                    <div class="flex justify-between">
+                        <span>模型:</span>
+                        <span>${config.settings.model || 'N/A'}</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <button onclick="event.stopPropagation(); editLLMConfig('${config.id}')" 
+                                class="text-blue-300 hover:text-blue-200 text-sm">
+                            <i class="fas fa-edit mr-1"></i>编辑
+                        </button>
+                    </div>
+                    <button onclick="event.stopPropagation(); deleteLLMConfig('${config.id}')" 
+                            class="text-red-300 hover:text-red-200">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function updateConfigSummary() {
+            if (!window.llmConfigManager) return;
+            
+            const configs = window.llmConfigManager.getAllConfigs();
+            const summary = {
+                total: configs.length,
+                active: configs.filter(c => c.isActive).length
+            };
+            
+            const summaryElement = document.getElementById('llm-config-summary');
+            if (summaryElement) {
+                summaryElement.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-100">${summary.total}</div>
+                            <div class="text-xs opacity-75">总配置</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-400">${summary.active}</div>
+                            <div class="text-xs opacity-75">活跃</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 简化的函数
+        function editLLMConfig(configId) {
+            openLLMConfigModal(configId);
+        }
+
+        function deleteLLMConfig(configId) {
+            if (confirm('确定要删除这个配置吗？')) {
+                window.llmConfigManager.deleteConfig(configId).then(() => {
+                    loadLLMConfigs();
+                    showNotification('配置已删除', 'success');
+                });
+            }
+        }
+
+        async function testLLMConnection() {
+            showNotification('连接测试功能需要后端API支持', 'info');
+        }
+
+        // 表单提交处理
+        document.getElementById('llm-config-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const config = {
+                name: formData.get('name'),
+                provider: formData.get('provider'),
+                settings: {
+                    apiKey: formData.get('apiKey'),
+                    baseUrl: formData.get('baseUrl'),
+                    model: formData.get('model')
+                }
+            };
+            
+            try {
+                let result;
+                if (currentEditingConfigId) {
+                    result = await window.llmConfigManager.updateConfig(currentEditingConfigId, config);
+                } else {
+                    result = await window.llmConfigManager.createConfig(config);
+                }
+                
+                if (result.success) {
+                    showNotification(currentEditingConfigId ? '配置更新成功！' : '配置创建成功！', 'success');
+                    closeLLMConfigModal();
+                    loadLLMConfigs();
+                } else {
+                    showNotification('保存失败: ' + result.errors.join(', '), 'error');
+                }
+            } catch (error) {
+                console.error('保存配置失败:', error);
+                showNotification('保存配置时发生错误', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

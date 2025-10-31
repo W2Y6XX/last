@@ -1,0 +1,281 @@
+{
+  "report_id": "test_20251027_142912_2850",
+  "test_session_id": "d8eda23a-42fa-4a4f-b221-616785a1daf5",
+  "environment": "development",
+  "start_time": "2025-10-27T14:29:12.850635",
+  "end_time": "2025-10-27T14:29:31.440115",
+  "total_duration": 18.58948,
+  "summary": {
+    "total_tests": 5,
+    "total_passed": 2,
+    "total_failed": 3,
+    "total_skipped": 0,
+    "success_rate": 40.0
+  },
+  "suite_results": [
+    {
+      "suite_name": "health_check",
+      "total_tests": 5,
+      "passed_tests": 2,
+      "failed_tests": 3,
+      "skipped_tests": 0,
+      "success_rate": 40.0,
+      "duration": 18.587361,
+      "start_time": "2025-10-27T14:29:12.852477",
+      "end_time": "2025-10-27T14:29:31.439838",
+      "results": [
+        {
+          "test_id": "test_20251027_142912_2852",
+          "test_name": "backend_health",
+          "test_suite": "health_check",
+          "status": "passed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T14:29:12.853511",
+          "end_time": "2025-10-27T14:29:14.895557",
+          "duration": 2.042046,
+          "details": {
+            "status_code": 200,
+            "response_time": 2.0411927700042725,
+            "url": "http://localhost:8000/health",
+            "content": {
+              "status": "healthy",
+              "message": "API服务运行正常"
+            }
+          },
+          "error_message": null,
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [
+            {
+              "name": "response_time",
+              "value": 2.0411927700042725,
+              "unit": "s",
+              "threshold": 10.0,
+              "passed": true
+            }
+          ],
+          "tags": [
+            "health_check",
+            "critical"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_142914_4895",
+          "test_name": "frontend_access",
+          "test_suite": "health_check",
+          "status": "passed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T14:29:14.895835",
+          "end_time": "2025-10-27T14:29:16.968560",
+          "duration": 2.072725,
+          "details": {
+            "status_code": 200,
+            "response_time": 2.0701427459716797,
+            "content_length": 431547,
+            "url": "http://localhost:3000/88.html",
+            "content_type": "text/html",
+            "has_html_structure": true
+          },
+          "error_message": null,
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [
+            {
+              "name": "response_time",
+              "value": 2.0701427459716797,
+              "unit": "s",
+              "threshold": 10.0,
+              "passed": true
+            }
+          ],
+          "tags": [
+            "health_check",
+            "critical"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_142916_6968",
+          "test_name": "api_endpoints",
+          "test_suite": "health_check",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T14:29:16.968824",
+          "end_time": "2025-10-27T14:29:29.349665",
+          "duration": 12.380841,
+          "details": {},
+          "error_message": "Unknown error",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [],
+          "tags": [
+            "health_check",
+            "critical"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_142929_9350",
+          "test_name": "database_connection",
+          "test_suite": "health_check",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T14:29:29.350098",
+          "end_time": "2025-10-27T14:29:31.419835",
+          "duration": 2.069737,
+          "details": {},
+          "error_message": "System status API returned 404",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [
+            {
+              "name": "response_time",
+              "value": 2.0690150260925293,
+              "unit": "s",
+              "threshold": 10.0,
+              "passed": true
+            }
+          ],
+          "tags": [
+            "health_check",
+            "critical"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        },
+        {
+          "test_id": "test_20251027_142931_1419",
+          "test_name": "websocket_connection",
+          "test_suite": "health_check",
+          "status": "failed",
+          "result_type": "functional",
+          "start_time": "2025-10-27T14:29:31.419959",
+          "end_time": "2025-10-27T14:29:31.439423",
+          "duration": 0.019464,
+          "details": {},
+          "error_message": "BaseEventLoop.create_connection() got an unexpected keyword argument 'timeout'",
+          "error_traceback": null,
+          "steps": [],
+          "metrics": [
+            {
+              "name": "response_time",
+              "value": 0.01691460609436035,
+              "unit": "s",
+              "threshold": 10.0,
+              "passed": true
+            }
+          ],
+          "tags": [
+            "health_check",
+            "critical"
+          ],
+          "environment": "development",
+          "retry_count": 0
+        }
+      ]
+    }
+  ],
+  "performance_summary": {
+    "response_time": {
+      "values": [
+        2.0411927700042725,
+        2.0701427459716797,
+        2.0690150260925293,
+        0.01691460609436035
+      ],
+      "unit": "s",
+      "passed_count": 4,
+      "failed_count": 0,
+      "avg": 1.5493162870407104,
+      "min": 0.01691460609436035,
+      "max": 2.0701427459716797,
+      "count": 4
+    }
+  },
+  "critical_failures": [
+    {
+      "test_id": "test_20251027_142916_6968",
+      "test_name": "api_endpoints",
+      "test_suite": "health_check",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T14:29:16.968824",
+      "end_time": "2025-10-27T14:29:29.349665",
+      "duration": 12.380841,
+      "details": {},
+      "error_message": "Unknown error",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [],
+      "tags": [
+        "health_check",
+        "critical"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    },
+    {
+      "test_id": "test_20251027_142929_9350",
+      "test_name": "database_connection",
+      "test_suite": "health_check",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T14:29:29.350098",
+      "end_time": "2025-10-27T14:29:31.419835",
+      "duration": 2.069737,
+      "details": {},
+      "error_message": "System status API returned 404",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [
+        {
+          "name": "response_time",
+          "value": 2.0690150260925293,
+          "unit": "s",
+          "threshold": 10.0,
+          "passed": true
+        }
+      ],
+      "tags": [
+        "health_check",
+        "critical"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    },
+    {
+      "test_id": "test_20251027_142931_1419",
+      "test_name": "websocket_connection",
+      "test_suite": "health_check",
+      "status": "failed",
+      "result_type": "functional",
+      "start_time": "2025-10-27T14:29:31.419959",
+      "end_time": "2025-10-27T14:29:31.439423",
+      "duration": 0.019464,
+      "details": {},
+      "error_message": "BaseEventLoop.create_connection() got an unexpected keyword argument 'timeout'",
+      "error_traceback": null,
+      "steps": [],
+      "metrics": [
+        {
+          "name": "response_time",
+          "value": 0.01691460609436035,
+          "unit": "s",
+          "threshold": 10.0,
+          "passed": true
+        }
+      ],
+      "tags": [
+        "health_check",
+        "critical"
+      ],
+      "environment": "development",
+      "retry_count": 0
+    }
+  ],
+  "system_info": {}
+}

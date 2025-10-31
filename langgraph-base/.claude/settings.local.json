@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "SlashCommand(/init)",
+      "Read(//d/agent 10.20/aaa/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

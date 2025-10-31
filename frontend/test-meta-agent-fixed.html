@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元智能体交互测试 - 修复版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #2d3561 50%, #4a3d8a 75%, #6b5b95 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">元智能体交互测试 - 修复版</h1>
+        
+        <div class="max-w-4xl mx-auto">
+            <!-- 测试控制面板 -->
+            <div class="glass-morphism rounded-xl p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">测试控制面板</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="testAPIConnection()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all">
+                        测试API连接
+                    </button>
+                    <button onclick="testCreateConversation()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-all">
+                        创建对话
+                    </button>
+                    <button onclick="testSendMessage()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-all">
+                        发送消息
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 对话界面 -->
+            <div class="glass-morphism rounded-xl p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">对话界面</h2>
+                <div id="chatMessages" class="bg-gray-900 p-4 rounded-lg min-h-64 max-h-96 overflow-y-auto mb-4">
+                    <p class="text-gray-400">等待开始对话...</p>
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" id="messageInput" placeholder="输入消息..." 
+                           class="flex-1 bg-white bg-opacity-10 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:bg-opacity-20">
+                    <button onclick="sendUserMessage()" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-all">
+                        发送
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 状态显示 -->
+            <div class="glass-morphism rounded-xl p-6">
+                <h2 class="text-xl font-semibold mb-4">状态信息</h2>
+                <div id="statusInfo" class="bg-gray-900 p-4 rounded-lg">
+                    <p class="text-gray-400">等待初始化...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入脚本 -->
+    <script src="config.js"></script>
+    <script src="js/managers/meta-agent-chat-manager.js"></script>
+    
+    <script>
+        let metaAgentManager = null;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('页面加载完成，准备测试');
+            
+            // 检查依赖
+            if (typeof window.apiClient === 'undefined') {
+                updateStatus('❌ API客户端未加载');
+                return;
+            }
+            
+            if (typeof MetaAgentChatManager === 'undefined') {
+                updateStatus('❌ MetaAgentChatManager未加载');
+                return;
+            }
+            
+            // 初始化管理器
+            metaAgentManager = new MetaAgentChatManager();
+            
+            // 设置事件监听器
+            metaAgentManager.onMessage((eventType, data) => {
+                console.log('事件:', eventType, data);
+                handleMetaAgentEvent(eventType, data);
+            });
+            
+            updateStatus('✅ 初始化完成，可以开始测试');
+        });
+        
+        // 测试API连接
+        async function testAPIConnection() {
+            updateStatus('🔍 测试API连接...');
+            
+            try {
+                const response = await window.apiClient.get('/health');
+                updateStatus('✅ API连接成功: ' + JSON.stringify(response));
+            } catch (error) {
+                updateStatus('❌ API连接失败: ' + error.message);
+            }
+        }
+        
+        // 测试创建对话
+        async function testCreateConversation() {
+            if (!metaAgentManager) {
+                updateStatus('❌ 管理器未初始化');
+                return;
+            }
+            
+            updateStatus('🚀 创建对话...');
+            addMessage('system', '开始创建对话...');
+            
+            try {
+                const result = await metaAgentManager.startConversation(
+                    '我想创建一个新的项目管理任务',
+                    { type: 'project_management' }
+                );
+                
+                if (result.success) {
+                    updateStatus('✅ 对话创建成功: ' + result.data.conversationId);
+                    addMessage('user', '我想创建一个新的项目管理任务');
+                    if (result.data.firstQuestion) {
+                        addMessage('assistant', result.data.firstQuestion);
+                    }
+                } else {
+                    updateStatus('❌ 对话创建失败: ' + result.errors.join(', '));
+                }
+            } catch (error) {
+                updateStatus('❌ 对话创建异常: ' + error.message);
+            }
+        }
+        
+        // 测试发送消息
+        async function testSendMessage() {
+            if (!metaAgentManager || !metaAgentManager.isActive) {
+                updateStatus('❌ 对话未激活，请先创建对话');
+                return;
+            }
+            
+            const testMessage = '这是一个关于网站开发的项目，需要包含前端和后端开发';
+            
+            try {
+                const result = await metaAgentManager.sendMessage(testMessage);
+                
+                if (result.success) {
+                    updateStatus('✅ 消息发送成功');
+                    addMessage('user', testMessage);
+                    if (result.data.response) {
+                        addMessage('assistant', result.data.response);
+                    }
+                } else {
+                    updateStatus('❌ 消息发送失败: ' + result.errors.join(', '));
+                }
+            } catch (error) {
+                updateStatus('❌ 消息发送异常: ' + error.message);
+            }
+        }
+        
+        // 发送用户消息
+        async function sendUserMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (!metaAgentManager || !metaAgentManager.isActive) {
+                updateStatus('❌ 对话未激活，请先创建对话');
+                return;
+            }
+            
+            input.value = '';
+            addMessage('user', message);
+            
+            try {
+                const result = await metaAgentManager.sendMessage(message);
+                
+                if (result.success) {
+                    if (result.data.response) {
+                        addMessage('assistant', result.data.response);
+                    }
+                    
+                    // 更新状态信息
+                    const statusData = {
+                        phase: result.data.phase,
+                        progress: result.data.progress,
+                        canDecompose: result.data.canDecompose
+                    };
+                    updateStatus('✅ 消息处理完成: ' + JSON.stringify(statusData));
+                } else {
+                    updateStatus('❌ 消息发送失败: ' + result.errors.join(', '));
+                }
+            } catch (error) {
+                updateStatus('❌ 消息发送异常: ' + error.message);
+                addMessage('system', '发送失败: ' + error.message);
+            }
+        }
+        
+        // 处理元智能体事件
+        function handleMetaAgentEvent(eventType, data) {
+            switch (eventType) {
+                case 'conversation_started':
+                    updateStatus('🎉 对话已开始');
+                    break;
+                case 'message_sent':
+                    updateStatus('📤 消息已发送');
+                    break;
+                case 'complexity_analyzed':
+                    updateStatus('📊 复杂度分析完成: ' + (data.complexity * 100).toFixed(0) + '%');
+                    break;
+                case 'task_decomposed':
+                    updateStatus('🔧 任务拆解完成');
+                    break;
+                default:
+                    updateStatus('📢 事件: ' + eventType);
+            }
+        }
+        
+        // 添加消息到聊天界面
+        function addMessage(type, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-2 p-2 rounded ${getMessageClass(type)}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `
+                <div class="flex items-start space-x-2">
+                    <span class="font-semibold">${getMessageLabel(type)}:</span>
+                    <span class="flex-1">${content}</span>
+                    <span class="text-xs opacity-60">${timestamp}</span>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 获取消息样式类
+        function getMessageClass(type) {
+            switch (type) {
+                case 'user': return 'bg-blue-600 bg-opacity-30';
+                case 'assistant': return 'bg-green-600 bg-opacity-30';
+                case 'system': return 'bg-gray-600 bg-opacity-30';
+                default: return 'bg-gray-600 bg-opacity-30';
+            }
+        }
+        
+        // 获取消息标签
+        function getMessageLabel(type) {
+            switch (type) {
+                case 'user': return '用户';
+                case 'assistant': return '元智能体';
+                case 'system': return '系统';
+                default: return type;
+            }
+        }
+        
+        // 更新状态信息
+        function updateStatus(message) {
+            const statusInfo = document.getElementById('statusInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = 'mb-1 text-sm';
+            statusDiv.innerHTML = `<span class="opacity-60">[${timestamp}]</span> ${message}`;
+            
+            statusInfo.appendChild(statusDiv);
+            statusInfo.scrollTop = statusInfo.scrollHeight;
+            
+            console.log('[Status]', message);
+        }
+        
+        // 回车发送消息
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendUserMessage();
+            }
+        });
+    </script>
+</body>
+</html>

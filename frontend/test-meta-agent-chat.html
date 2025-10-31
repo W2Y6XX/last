@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元智能体对话界面测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 25%, #2d3561 50%, #4a3d8a 75%, #6b5b95 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8 text-center">元智能体对话界面测试</h1>
+        
+        <div class="max-w-2xl mx-auto">
+            <div class="glass-morphism rounded-xl p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">功能测试</h2>
+                <div class="space-y-4">
+                    <button onclick="testMetaAgentChatManager()" class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-all">
+                        测试 MetaAgentChatManager 初始化
+                    </button>
+                    <button onclick="testOpenMetaAgentChat()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all">
+                        测试打开对话界面
+                    </button>
+                    <button onclick="testProgressTracking()" class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-all">
+                        测试进度跟踪功能
+                    </button>
+                    <button onclick="forceClearCache()" class="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-all">
+                        🔄 强制清除缓存并刷新
+                    </button>
+                </div>
+            </div>
+            
+            <div class="glass-morphism rounded-xl p-6">
+                <h2 class="text-xl font-semibold mb-4">测试结果</h2>
+                <div id="testResults" class="bg-gray-900 p-4 rounded-lg min-h-32">
+                    <p class="text-gray-400">等待测试...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 缓存清理工具 -->
+    <script src="js/cache-buster.js"></script>
+    
+    <!-- 引入必要的脚本 -->
+    <script src="js/managers/meta-agent-chat-manager.js"></script>
+    
+    <script>
+        // 模拟 API 客户端
+        window.apiClient = {
+            post: async (url, data) => {
+                console.log('模拟 API 调用:', url, data);
+                
+                // 模拟不同的响应
+                if (url.includes('/conversations')) {
+                    return {
+                        success: true,
+                        data: {
+                            conversationId: 'test-conversation-' + Date.now(),
+                            firstQuestion: '您好！我是元智能体，请告诉我您想要创建什么样的任务？'
+                        }
+                    };
+                } else if (url.includes('/messages')) {
+                    return {
+                        success: true,
+                        data: {
+                            response: '感谢您的回答！让我来帮您进一步完善任务细节。',
+                            progress: 25,
+                            phase: 'collecting',
+                            canDecompose: false,
+                            taskContext: {
+                                title: data.message,
+                                description: '正在收集更多信息...',
+                                complexity: 0.3
+                            }
+                        }
+                    };
+                }
+                
+                return { success: true, data: {} };
+            }
+        };
+        
+        // 测试函数
+        function testMetaAgentChatManager() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<p class="text-yellow-400">正在测试 MetaAgentChatManager...</p>';
+            
+            try {
+                if (typeof MetaAgentChatManager === 'undefined') {
+                    throw new Error('MetaAgentChatManager 未定义');
+                }
+                
+                const manager = new MetaAgentChatManager();
+                
+                // 测试基本属性
+                const tests = [
+                    { name: '初始化状态', test: () => !manager.isActive },
+                    { name: '消息数组', test: () => Array.isArray(manager.messages) },
+                    { name: '任务上下文', test: () => typeof manager.taskContext === 'object' },
+                    { name: '阶段定义', test: () => typeof manager.phases === 'object' },
+                    { name: '消息类型', test: () => typeof manager.messageTypes === 'object' }
+                ];
+                
+                let passedTests = 0;
+                let testResults = '<div class="space-y-2">';
+                
+                tests.forEach(test => {
+                    try {
+                        const passed = test.test();
+                        testResults += `<div class="flex items-center">
+                            <span class="${passed ? 'text-green-400' : 'text-red-400'}">${passed ? '✓' : '✗'}</span>
+                            <span class="ml-2">${test.name}</span>
+                        </div>`;
+                        if (passed) passedTests++;
+                    } catch (error) {
+                        testResults += `<div class="flex items-center">
+                            <span class="text-red-400">✗</span>
+                            <span class="ml-2">${test.name}: ${error.message}</span>
+                        </div>`;
+                    }
+                });
+                
+                testResults += '</div>';
+                testResults += `<p class="mt-4 text-blue-400">测试完成: ${passedTests}/${tests.length} 通过</p>`;
+                
+                results.innerHTML = testResults;
+                
+            } catch (error) {
+                results.innerHTML = `<p class="text-red-400">测试失败: ${error.message}</p>`;
+            }
+        }
+        
+        function testOpenMetaAgentChat() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<p class="text-yellow-400">正在测试对话界面...</p>';
+            
+            try {
+                // 检查必要的函数是否存在
+                const functions = [
+                    'openMetaAgentChat',
+                    'closeMetaAgentChat',
+                    'resetMetaAgentChat',
+                    'startMetaAgentConversation',
+                    'sendMetaAgentMessage'
+                ];
+                
+                let testResults = '<div class="space-y-2">';
+                let passedTests = 0;
+                
+                functions.forEach(funcName => {
+                    const exists = typeof window[funcName] === 'function';
+                    testResults += `<div class="flex items-center">
+                        <span class="${exists ? 'text-green-400' : 'text-red-400'}">${exists ? '✓' : '✗'}</span>
+                        <span class="ml-2">函数 ${funcName} ${exists ? '存在' : '不存在'}</span>
+                    </div>`;
+                    if (exists) passedTests++;
+                });
+                
+                testResults += '</div>';
+                testResults += `<p class="mt-4 text-blue-400">函数检查完成: ${passedTests}/${functions.length} 通过</p>`;
+                
+                results.innerHTML = testResults;
+                
+            } catch (error) {
+                results.innerHTML = `<p class="text-red-400">测试失败: ${error.message}</p>`;
+            }
+        }
+        
+        function testProgressTracking() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<p class="text-yellow-400">正在测试进度跟踪...</p>';
+            
+            try {
+                // 检查进度跟踪相关函数
+                const functions = [
+                    'updateProgress',
+                    'updateMilestones',
+                    'updatePhaseIndicator',
+                    'showTaskSummary',
+                    'updateTaskSummaryInfo',
+                    'resetProgressTracking'
+                ];
+                
+                let testResults = '<div class="space-y-2">';
+                let passedTests = 0;
+                
+                functions.forEach(funcName => {
+                    const exists = typeof window[funcName] === 'function';
+                    testResults += `<div class="flex items-center">
+                        <span class="${exists ? 'text-green-400' : 'text-red-400'}">${exists ? '✓' : '✗'}</span>
+                        <span class="ml-2">函数 ${funcName} ${exists ? '存在' : '不存在'}</span>
+                    </div>`;
+                    if (exists) passedTests++;
+                });
+                
+                testResults += '</div>';
+                testResults += `<p class="mt-4 text-blue-400">进度跟踪函数检查完成: ${passedTests}/${functions.length} 通过</p>`;
+                
+                results.innerHTML = testResults;
+                
+            } catch (error) {
+                results.innerHTML = `<p class="text-red-400">测试失败: ${error.message}</p>`;
+            }
+        }
+        
+        // 强制清除缓存
+        function forceClearCache() {
+            const results = document.getElementById('testResults');
+            results.innerHTML = '<p class="text-yellow-400">正在清除缓存并刷新页面...</p>';
+            
+            // 清除所有本地存储
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // 使用缓存清理工具
+            if (window.CacheBuster) {
+                window.CacheBuster.clearCache();
+            }
+            
+            // 添加强制刷新参数并重新加载页面
+            const url = new URL(window.location);
+            url.searchParams.set('force', 'true');
+            url.searchParams.set('_t', Date.now());
+            
+            setTimeout(() => {
+                window.location.href = url.toString();
+            }, 1000);
+        }
+        
+        // 页面加载完成后显示状态
+        document.addEventListener('DOMContentLoaded', function() {
+            const results = document.getElementById('testResults');
+            
+            // 检查是否是强制刷新后的页面
+            const urlParams = new URLSearchParams(window.location.search);
+            const isForceRefresh = urlParams.get('force') === 'true';
+            
+            let statusHtml = `
+                <p class="text-green-400">✓ 页面加载完成</p>
+                <p class="text-blue-400">MetaAgentChatManager: ${typeof MetaAgentChatManager !== 'undefined' ? '已加载' : '未加载'}</p>
+                <p class="text-purple-400">CacheBuster: ${typeof window.CacheBuster !== 'undefined' ? '已加载' : '未加载'}</p>
+            `;
+            
+            if (isForceRefresh) {
+                statusHtml += '<p class="text-green-400">🔄 缓存已清除，页面已强制刷新</p>';
+            }
+            
+            if (window.CacheBuster) {
+                statusHtml += `<p class="text-gray-400">缓存版本: ${window.CacheBuster.version}</p>`;
+            }
+            
+            statusHtml += '<p class="text-gray-400">点击上方按钮开始测试功能</p>';
+            
+            results.innerHTML = statusHtml;
+        });
+    </script>
+</body>
+</html>

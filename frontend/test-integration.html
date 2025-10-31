@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前后端集成测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .controls {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .status-value {
+            font-weight: bold;
+        }
+        
+        .status-value.success { color: #10b981; }
+        .status-value.failure { color: #ef4444; }
+        .status-value.warning { color: #f59e0b; }
+        
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        
+        .results {
+            padding: 20px;
+        }
+        
+        .log {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-entry.info { color: #60a5fa; }
+        .log-entry.success { color: #34d399; }
+        .log-entry.error { color: #f87171; }
+        .log-entry.warning { color: #fbbf24; }
+        
+        .suite-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .suite-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>前后端集成测试套件</h1>
+            <p>验证新功能与现有系统的集成状态</p>
+        </div>
+        
+        <div class="controls">
+            <button id="runAllTests" class="btn btn-primary">运行所有测试</button>
+            <button id="runSelectedTests" class="btn btn-secondary">运行选中测试</button>
+            <button id="clearResults" class="btn btn-secondary">清除结果</button>
+            <button id="exportResults" class="btn btn-secondary hidden">导出结果</button>
+            
+            <div class="suite-selector">
+                <label class="suite-checkbox">
+                    <input type="checkbox" value="apiConnectivity" checked>
+                    <span>API连接性</span>
+                </label>
+                <label class="suite-checkbox">
+                    <input type="checkbox" value="dataIntegrity" checked>
+                    <span>数据完整性</span>
+                </label>
+                <label class="suite-checkbox">
+                    <input type="checkbox" value="featureCompatibility" checked>
+                    <span>功能兼容性</span>
+                </label>
+                <label class="suite-checkbox">
+                    <input type="checkbox" value="websocketFunctionality" checked>
+                    <span>WebSocket功能</span>
+                </label>
+                <label class="suite-checkbox">
+                    <input type="checkbox" value="errorHandling" checked>
+                    <span>错误处理</span>
+                </label>
+                <label class="suite-checkbox">
+                    <input type="checkbox" value="performanceBaseline" checked>
+                    <span>性能基准</span>
+                </label>
+                <label class="suite-checkbox">
+                    <input type="checkbox" value="endToEndWorkflows" checked>
+                    <span>端到端工作流</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="status">
+            <div class="status-item">
+                <span>测试状态:</span>
+                <span id="testStatus" class="status-value">就绪</span>
+            </div>
+            <div class="status-item">
+                <span>当前测试:</span>
+                <span id="currentTest">-</span>
+            </div>
+            <div class="status-item">
+                <span>进度:</span>
+                <span id="testProgress">0/0</span>
+            </div>
+            <div class="progress">
+                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        
+        <div class="results">
+            <div id="testResults"></div>
+            <div id="testLog" class="log hidden"></div>
+        </div>
+    </div>
+
+    <!-- 加载必要的脚本 -->
+    <script src="config.js"></script>
+    <script src="js/core/error-handler.js"></script>
+    <script src="js/core/compatibility-manager.js"></script>
+    <script src="js/core/data-compatibility.js"></script>
+    <script src="js/core/feature-flag-manager.js"></script>
+    <script src="js/core/monitoring-system.js"></script>
+    <script src="js/core/error-boundary.js"></script>
+    <script src="js/core/system-integration.js"></script>
+    <script src="js/managers/llm-config-manager.js"></script>
+    <script src="js/managers/agent-manager.js"></script>
+    <script src="js/managers/meta-agent-chat-manager.js"></script>
+    <script src="js/tests/integration-test-suite.js"></script>
+
+    <script>
+        class TestRunner {
+            constructor() {
+                this.testSuite = null;
+                this.isRunning = false;
+                this.currentResults = null;
+                
+                this.elements = {
+                    runAllTests: document.getElementById('runAllTests'),
+                    runSelectedTests: document.getElementById('runSelectedTests'),
+                    clearResults: document.getElementById('clearResults'),
+                    exportResults: document.getElementById('exportResults'),
+                    testStatus: document.getElementById('testStatus'),
+                    currentTest: document.getElementById('currentTest'),
+                    testProgress: document.getElementById('testProgress'),
+                    progressBar: document.getElementById('progressBar'),
+                    testResults: document.getElementById('testResults'),
+                    testLog: document.getElementById('testLog'),
+                    suiteCheckboxes: document.querySelectorAll('.suite-checkbox input[type="checkbox"]')
+                };
+                
+                this.initializeTestSuite();
+                this.setupEventListeners();
+                this.checkSystemStatus();
+            }
+            
+            initializeTestSuite() {
+                try {
+                    this.testSuite = new IntegrationTestSuite();
+                    this.log('集成测试套件初始化完成', 'success');
+                } catch (error) {
+                    this.log(`测试套件初始化失败: ${error.message}`, 'error');
+                    this.updateStatus('初始化失败', 'failure');
+                }
+            }
+            
+            setupEventListeners() {
+                this.elements.runAllTests.addEventListener('click', () => {
+                    this.runAllTests();
+                });
+                
+                this.elements.runSelectedTests.addEventListener('click', () => {
+                    this.runSelectedTests();
+                });
+                
+                this.elements.clearResults.addEventListener('click', () => {
+                    this.clearResults();
+                });
+                
+                this.elements.exportResults.addEventListener('click', () => {
+                    this.exportResults();
+                });
+            }
+            
+            async checkSystemStatus() {
+                this.log('检查系统状态...', 'info');
+                
+                const checks = [
+                    { name: 'API客户端', check: () => !!window.apiClient },
+                    { name: '错误处理器', check: () => !!window.ErrorHandler },
+                    { name: '兼容性管理器', check: () => !!window.CompatibilityManager },
+                    { name: '功能开关管理器', check: () => !!window.FeatureFlagManager },
+                    { name: '监控系统', check: () => !!window.MonitoringSystem },
+                    { name: '大模型配置管理器', check: () => !!window.LLMConfigManager },
+                    { name: '智能体管理器', check: () => !!window.AgentManager },
+                    { name: '元智能体对话管理器', check: () => !!window.MetaAgentChatManager }
+                ];
+                
+                let availableCount = 0;
+                checks.forEach(({ name, check }) => {
+                    const available = check();
+                    if (available) {
+                        availableCount++;
+                        this.log(`✓ ${name} 可用`, 'success');
+                    } else {
+                        this.log(`✗ ${name} 不可用`, 'warning');
+                    }
+                });
+                
+                this.log(`系统组件检查完成: ${availableCount}/${checks.length} 可用`, 'info');
+                
+                if (availableCount === 0) {
+                    this.updateStatus('系统不可用', 'failure');
+                    this.elements.runAllTests.disabled = true;
+                    this.elements.runSelectedTests.disabled = true;
+                } else {
+                    this.updateStatus('就绪', 'success');
+                }
+            }
+            
+            async runAllTests() {
+                if (this.isRunning || !this.testSuite) return;
+                
+                this.startTestRun();
+                
+                try {
+                    this.log('开始运行所有测试套件...', 'info');
+                    const results = await this.testSuite.runAllTests();
+                    this.handleTestResults(results);
+                } catch (error) {
+                    this.log(`测试执行失败: ${error.message}`, 'error');
+                    this.updateStatus('执行失败', 'failure');
+                } finally {
+                    this.endTestRun();
+                }
+            }
+            
+            async runSelectedTests() {
+                if (this.isRunning || !this.testSuite) return;
+                
+                const selectedSuites = Array.from(this.elements.suiteCheckboxes)
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+                
+                if (selectedSuites.length === 0) {
+                    this.log('请选择至少一个测试套件', 'warning');
+                    return;
+                }
+                
+                this.startTestRun();
+                
+                try {
+                    this.log(`开始运行选中的测试套件: ${selectedSuites.join(', ')}`, 'info');
+                    
+                    const results = {
+                        summary: { total: 0, passed: 0, failed: 0, skipped: 0, duration: 0 },
+                        suites: {},
+                        errors: []
+                    };
+                    
+                    const startTime = Date.now();
+                    
+                    for (const suiteName of selectedSuites) {
+                        try {
+                            this.updateCurrentTest(`运行 ${suiteName}`);
+                            const suiteResults = await this.testSuite.runTestSuite(suiteName);
+                            results.suites[suiteName] = suiteResults;
+                            
+                            results.summary.total += suiteResults.total;
+                            results.summary.passed += suiteResults.passed;
+                            results.summary.failed += suiteResults.failed;
+                            results.summary.skipped += suiteResults.skipped;
+                            
+                        } catch (error) {
+                            this.log(`测试套件 ${suiteName} 执行失败: ${error.message}`, 'error');
+                            results.errors.push({ suite: suiteName, error: error.message });
+                        }
+                    }
+                    
+                    results.summary.duration = Date.now() - startTime;
+                    results.summary.success = results.summary.failed === 0;
+                    
+                    this.handleTestResults(results);
+                    
+                } catch (error) {
+                    this.log(`测试执行失败: ${error.message}`, 'error');
+                    this.updateStatus('执行失败', 'failure');
+                } finally {
+                    this.endTestRun();
+                }
+            }
+            
+            startTestRun() {
+                this.isRunning = true;
+                this.elements.runAllTests.disabled = true;
+                this.elements.runSelectedTests.disabled = true;
+                this.elements.clearResults.disabled = true;
+                this.updateStatus('运行中', 'warning');
+                this.updateProgress(0, 0);
+                this.elements.testLog.classList.remove('hidden');
+            }
+            
+            endTestRun() {
+                this.isRunning = false;
+                this.elements.runAllTests.disabled = false;
+                this.elements.runSelectedTests.disabled = false;
+                this.elements.clearResults.disabled = false;
+                this.updateCurrentTest('-');
+                this.updateProgress(100, 100);
+            }
+            
+            handleTestResults(results) {
+                this.currentResults = results;
+                
+                const { summary } = results;
+                const successRate = summary.total > 0 ? (summary.passed / summary.total * 100).toFixed(1) : 0;
+                
+                if (summary.success) {
+                    this.updateStatus(`完成 (${successRate}%)`, 'success');
+                    this.log(`所有测试完成: ${summary.passed}/${summary.total} 通过`, 'success');
+                } else {
+                    this.updateStatus(`完成 (${successRate}%)`, 'failure');
+                    this.log(`测试完成: ${summary.passed}/${summary.total} 通过, ${summary.failed} 失败`, 'error');
+                }
+                
+                // 显示详细结果
+                const reportHtml = this.testSuite.generateReport(results);
+                this.elements.testResults.innerHTML = reportHtml;
+                
+                // 显示导出按钮
+                this.elements.exportResults.classList.remove('hidden');
+            }
+            
+            clearResults() {
+                this.elements.testResults.innerHTML = '';
+                this.elements.testLog.innerHTML = '';
+                this.elements.testLog.classList.add('hidden');
+                this.elements.exportResults.classList.add('hidden');
+                this.currentResults = null;
+                this.updateStatus('就绪', 'success');
+                this.updateCurrentTest('-');
+                this.updateProgress(0, 0);
+            }
+            
+            exportResults() {
+                if (!this.currentResults) return;
+                
+                const data = {
+                    timestamp: new Date().toISOString(),
+                    results: this.currentResults,
+                    userAgent: navigator.userAgent,
+                    url: window.location.href
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `integration-test-results-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                URL.revokeObjectURL(url);
+                
+                this.log('测试结果已导出', 'success');
+            }
+            
+            updateStatus(status, type = 'info') {
+                this.elements.testStatus.textContent = status;
+                this.elements.testStatus.className = `status-value ${type}`;
+            }
+            
+            updateCurrentTest(test) {
+                this.elements.currentTest.textContent = test;
+            }
+            
+            updateProgress(current, total) {
+                const percentage = total > 0 ? (current / total * 100) : 0;
+                this.elements.testProgress.textContent = `${current}/${total}`;
+                this.elements.progressBar.style.width = `${percentage}%`;
+            }
+            
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                logEntry.textContent = `[${timestamp}] ${message}`;
+                
+                this.elements.testLog.appendChild(logEntry);
+                this.elements.testLog.scrollTop = this.elements.testLog.scrollHeight;
+                
+                console.log(`[IntegrationTest] ${message}`);
+            }
+        }
+        
+        // 初始化测试运行器
+        document.addEventListener('DOMContentLoaded', () => {
+            window.testRunner = new TestRunner();
+        });
+    </script>
+</body>
+</html>

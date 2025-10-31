@@ -1,0 +1,1074 @@
+{
+  "project_path": ".",
+  "files_analyzed": 10,
+  "total_python_files": 878,
+  "analysis_summary": {
+    "total_lines_of_code": 2834,
+    "total_functions": 124,
+    "total_classes": 20,
+    "total_imports": [
+      "agentlightning.llm_proxy",
+      "langgraph_multi_agent.system.integration",
+      "re",
+      "functools",
+      "copy",
+      "fastapi.middleware.cors",
+      "random",
+      "ast",
+      "collections",
+      "fastapi.responses",
+      "jsonpointer",
+      "sys",
+      "typing",
+      "fastapi.staticfiles",
+      "__future__",
+      "asyncio",
+      "uvicorn",
+      "fastapi",
+      "logging",
+      "json",
+      "datetime",
+      "os",
+      "pathlib",
+      "time",
+      "agentlightning",
+      "collections.abc",
+      "itertools",
+      "types"
+    ],
+    "total_issues": 3,
+    "average_function_per_file": 12.4,
+    "most_common_imports": [
+      [
+        "agentlightning.llm_proxy",
+        1
+      ],
+      [
+        "langgraph_multi_agent.system.integration",
+        1
+      ],
+      [
+        "re",
+        1
+      ],
+      [
+        "functools",
+        1
+      ],
+      [
+        "copy",
+        1
+      ],
+      [
+        "fastapi.middleware.cors",
+        1
+      ],
+      [
+        "random",
+        1
+      ],
+      [
+        "ast",
+        1
+      ],
+      [
+        "collections",
+        1
+      ],
+      [
+        "fastapi.responses",
+        1
+      ]
+    ]
+  },
+  "findings": [
+    {
+      "file_path": "agentlightning_example_agent.py",
+      "relative_path": "agentlightning_example_agent.py",
+      "lines_of_code": 261,
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 268,
+          "arg_count": 0
+        },
+        {
+          "name": "__init__",
+          "line_number": 20,
+          "arg_count": 1
+        },
+        {
+          "name": "rollout",
+          "line_number": 29,
+          "arg_count": 4
+        },
+        {
+          "name": "analyze_file",
+          "line_number": 52,
+          "arg_count": 2
+        },
+        {
+          "name": "analyze_directory",
+          "line_number": 61,
+          "arg_count": 2
+        },
+        {
+          "name": "analyze_code_content",
+          "line_number": 91,
+          "arg_count": 3
+        },
+        {
+          "name": "analyze_code_structure",
+          "line_number": 110,
+          "arg_count": 2
+        },
+        {
+          "name": "analyze_complexity",
+          "line_number": 141,
+          "arg_count": 2
+        },
+        {
+          "name": "calculate_nested_depth",
+          "line_number": 162,
+          "arg_count": 3
+        },
+        {
+          "name": "analyze_dependencies",
+          "line_number": 172,
+          "arg_count": 2
+        },
+        {
+          "name": "analyze_security_issues",
+          "line_number": 186,
+          "arg_count": 2
+        },
+        {
+          "name": "calculate_metrics",
+          "line_number": 214,
+          "arg_count": 3
+        },
+        {
+          "name": "generate_directory_summary",
+          "line_number": 227,
+          "arg_count": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "CodeAnalysisAgent",
+          "line_number": 14,
+          "method_count": 12
+        }
+      ],
+      "imports": [
+        "os",
+        "ast",
+        "typing",
+        "agentlightning",
+        "agentlightning.llm_proxy"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 9,
+        "exception_handling": 2,
+        "function_length": 0
+      },
+      "potential_issues": [
+        {
+          "type": "long_function",
+          "function": "main",
+          "line": 268,
+          "length": 56
+        }
+      ]
+    },
+    {
+      "file_path": "project_analyzer.py",
+      "relative_path": "project_analyzer.py",
+      "lines_of_code": 123,
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 137,
+          "arg_count": 0
+        },
+        {
+          "name": "__init__",
+          "line_number": 18,
+          "arg_count": 2
+        },
+        {
+          "name": "analyze_project_structure",
+          "line_number": 22,
+          "arg_count": 1
+        },
+        {
+          "name": "generate_analysis",
+          "line_number": 57,
+          "arg_count": 2
+        },
+        {
+          "name": "detect_project_type",
+          "line_number": 66,
+          "arg_count": 2
+        },
+        {
+          "name": "calculate_complexity_score",
+          "line_number": 82,
+          "arg_count": 2
+        },
+        {
+          "name": "generate_recommendations",
+          "line_number": 90,
+          "arg_count": 2
+        },
+        {
+          "name": "rollout",
+          "line_number": 108,
+          "arg_count": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "ProjectAnalyzer",
+          "line_number": 15,
+          "method_count": 7
+        }
+      ],
+      "imports": [
+        "os",
+        "json",
+        "pathlib",
+        "typing",
+        "agentlightning",
+        "agentlightning.llm_proxy"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 4,
+        "exception_handling": 1,
+        "function_length": 0
+      },
+      "potential_issues": []
+    },
+    {
+      "file_path": "simple_agentlightning_demo.py",
+      "relative_path": "simple_agentlightning_demo.py",
+      "lines_of_code": 212,
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 256,
+          "arg_count": 0
+        },
+        {
+          "name": "__init__",
+          "line_number": 20,
+          "arg_count": 1
+        },
+        {
+          "name": "analyze_project_code",
+          "line_number": 23,
+          "arg_count": 2
+        },
+        {
+          "name": "analyze_single_file",
+          "line_number": 70,
+          "arg_count": 2
+        },
+        {
+          "name": "generate_summary",
+          "line_number": 152,
+          "arg_count": 2
+        },
+        {
+          "name": "generate_recommendations",
+          "line_number": 190,
+          "arg_count": 2
+        },
+        {
+          "name": "save_results",
+          "line_number": 216,
+          "arg_count": 3
+        },
+        {
+          "name": "print_summary",
+          "line_number": 225,
+          "arg_count": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "SimpleCodeAnalyzer",
+          "line_number": 14,
+          "method_count": 7
+        }
+      ],
+      "imports": [
+        "os",
+        "ast",
+        "json",
+        "typing",
+        "pathlib"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 5,
+        "exception_handling": 3,
+        "function_length": 0
+      },
+      "potential_issues": [
+        {
+          "type": "long_function",
+          "function": "analyze_single_file",
+          "line": 70,
+          "length": 81
+        }
+      ]
+    },
+    {
+      "file_path": "simple_project_analyzer.py",
+      "relative_path": "simple_project_analyzer.py",
+      "lines_of_code": 205,
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 259,
+          "arg_count": 0
+        },
+        {
+          "name": "__init__",
+          "line_number": 17,
+          "arg_count": 2
+        },
+        {
+          "name": "analyze_project_structure",
+          "line_number": 21,
+          "arg_count": 1
+        },
+        {
+          "name": "generate_analysis",
+          "line_number": 71,
+          "arg_count": 2
+        },
+        {
+          "name": "detect_project_type",
+          "line_number": 83,
+          "arg_count": 2
+        },
+        {
+          "name": "calculate_complexity_score",
+          "line_number": 105,
+          "arg_count": 2
+        },
+        {
+          "name": "generate_recommendations",
+          "line_number": 116,
+          "arg_count": 2
+        },
+        {
+          "name": "check_agentlightning_compatibility",
+          "line_number": 142,
+          "arg_count": 2
+        },
+        {
+          "name": "run_analysis",
+          "line_number": 208,
+          "arg_count": 1
+        }
+      ],
+      "classes": [
+        {
+          "name": "SimpleProjectAnalyzer",
+          "line_number": 14,
+          "method_count": 8
+        }
+      ],
+      "imports": [
+        "os",
+        "json",
+        "time",
+        "pathlib",
+        "typing"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 8,
+        "exception_handling": 4,
+        "function_length": 0
+      },
+      "potential_issues": [
+        {
+          "type": "long_function",
+          "function": "check_agentlightning_compatibility",
+          "line": 142,
+          "length": 65
+        }
+      ]
+    },
+    {
+      "file_path": "examples\\basic_workflow.py",
+      "relative_path": "examples\\basic_workflow.py",
+      "lines_of_code": 159,
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 211,
+          "arg_count": 0
+        }
+      ],
+      "classes": [],
+      "imports": [
+        "asyncio",
+        "logging",
+        "datetime",
+        "typing",
+        "sys",
+        "os",
+        "langgraph_multi_agent.system.integration"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 4,
+        "exception_handling": 4,
+        "function_length": 0
+      },
+      "potential_issues": []
+    },
+    {
+      "file_path": "examples\\data_analysis_workflow.py",
+      "relative_path": "examples\\data_analysis_workflow.py",
+      "lines_of_code": 257,
+      "functions": [
+        {
+          "name": "generate_sample_data",
+          "line_number": 35,
+          "arg_count": 0
+        },
+        {
+          "name": "main",
+          "line_number": 334,
+          "arg_count": 0
+        }
+      ],
+      "classes": [],
+      "imports": [
+        "asyncio",
+        "logging",
+        "json",
+        "datetime",
+        "typing",
+        "random",
+        "sys",
+        "os",
+        "langgraph_multi_agent.system.integration"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 10,
+        "exception_handling": 4,
+        "function_length": 0
+      },
+      "potential_issues": []
+    },
+    {
+      "file_path": "examples\\demo_server.py",
+      "relative_path": "examples\\demo_server.py",
+      "lines_of_code": 473,
+      "functions": [
+        {
+          "name": "main",
+          "line_number": 579,
+          "arg_count": 0
+        }
+      ],
+      "classes": [],
+      "imports": [
+        "asyncio",
+        "logging",
+        "json",
+        "datetime",
+        "typing",
+        "pathlib",
+        "fastapi",
+        "fastapi.staticfiles",
+        "fastapi.responses",
+        "fastapi.middleware.cors",
+        "uvicorn",
+        "sys",
+        "os",
+        "langgraph_multi_agent.system.integration"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 0,
+        "exception_handling": 11,
+        "function_length": 0
+      },
+      "potential_issues": []
+    },
+    {
+      "file_path": "examples\\parallel_processing.py",
+      "relative_path": "examples\\parallel_processing.py",
+      "lines_of_code": 258,
+      "functions": [
+        {
+          "name": "generate_parallel_tasks",
+          "line_number": 35,
+          "arg_count": 0
+        },
+        {
+          "name": "main",
+          "line_number": 351,
+          "arg_count": 0
+        }
+      ],
+      "classes": [],
+      "imports": [
+        "asyncio",
+        "logging",
+        "time",
+        "datetime",
+        "typing",
+        "random",
+        "sys",
+        "os",
+        "langgraph_multi_agent.system.integration"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 7,
+        "exception_handling": 3,
+        "function_length": 0
+      },
+      "potential_issues": []
+    },
+    {
+      "file_path": "langgraph-base\\jsonpatch.py",
+      "relative_path": "langgraph-base\\jsonpatch.py",
+      "lines_of_code": 673,
+      "functions": [
+        {
+          "name": "multidict",
+          "line_number": 101,
+          "arg_count": 1
+        },
+        {
+          "name": "apply_patch",
+          "line_number": 120,
+          "arg_count": 4
+        },
+        {
+          "name": "make_patch",
+          "line_number": 160,
+          "arg_count": 3
+        },
+        {
+          "name": "_path_join",
+          "line_number": 927,
+          "arg_count": 2
+        },
+        {
+          "name": "__init__",
+          "line_number": 187,
+          "arg_count": 3
+        },
+        {
+          "name": "apply",
+          "line_number": 205,
+          "arg_count": 2
+        },
+        {
+          "name": "__hash__",
+          "line_number": 209,
+          "arg_count": 1
+        },
+        {
+          "name": "__eq__",
+          "line_number": 212,
+          "arg_count": 2
+        },
+        {
+          "name": "__ne__",
+          "line_number": 217,
+          "arg_count": 2
+        },
+        {
+          "name": "path",
+          "line_number": 221,
+          "arg_count": 1
+        },
+        {
+          "name": "key",
+          "line_number": 225,
+          "arg_count": 1
+        },
+        {
+          "name": "key",
+          "line_number": 232,
+          "arg_count": 2
+        },
+        {
+          "name": "apply",
+          "line_number": 241,
+          "arg_count": 2
+        },
+        {
+          "name": "_on_undo_remove",
+          "line_number": 255,
+          "arg_count": 3
+        },
+        {
+          "name": "_on_undo_add",
+          "line_number": 263,
+          "arg_count": 3
+        },
+        {
+          "name": "apply",
+          "line_number": 275,
+          "arg_count": 2
+        },
+        {
+          "name": "_on_undo_remove",
+          "line_number": 307,
+          "arg_count": 3
+        },
+        {
+          "name": "_on_undo_add",
+          "line_number": 315,
+          "arg_count": 3
+        },
+        {
+          "name": "apply",
+          "line_number": 327,
+          "arg_count": 2
+        },
+        {
+          "name": "_on_undo_remove",
+          "line_number": 359,
+          "arg_count": 3
+        },
+        {
+          "name": "_on_undo_add",
+          "line_number": 362,
+          "arg_count": 3
+        },
+        {
+          "name": "apply",
+          "line_number": 369,
+          "arg_count": 2
+        },
+        {
+          "name": "from_path",
+          "line_number": 407,
+          "arg_count": 1
+        },
+        {
+          "name": "from_key",
+          "line_number": 412,
+          "arg_count": 1
+        },
+        {
+          "name": "from_key",
+          "line_number": 420,
+          "arg_count": 2
+        },
+        {
+          "name": "_on_undo_remove",
+          "line_number": 425,
+          "arg_count": 3
+        },
+        {
+          "name": "_on_undo_add",
+          "line_number": 438,
+          "arg_count": 3
+        },
+        {
+          "name": "apply",
+          "line_number": 455,
+          "arg_count": 2
+        },
+        {
+          "name": "apply",
+          "line_number": 482,
+          "arg_count": 2
+        },
+        {
+          "name": "__init__",
+          "line_number": 562,
+          "arg_count": 3
+        },
+        {
+          "name": "__str__",
+          "line_number": 586,
+          "arg_count": 1
+        },
+        {
+          "name": "__bool__",
+          "line_number": 590,
+          "arg_count": 1
+        },
+        {
+          "name": "__iter__",
+          "line_number": 595,
+          "arg_count": 1
+        },
+        {
+          "name": "__hash__",
+          "line_number": 598,
+          "arg_count": 1
+        },
+        {
+          "name": "__eq__",
+          "line_number": 601,
+          "arg_count": 2
+        },
+        {
+          "name": "__ne__",
+          "line_number": 606,
+          "arg_count": 2
+        },
+        {
+          "name": "from_string",
+          "line_number": 610,
+          "arg_count": 4
+        },
+        {
+          "name": "from_diff",
+          "line_number": 630,
+          "arg_count": 6
+        },
+        {
+          "name": "to_string",
+          "line_number": 666,
+          "arg_count": 2
+        },
+        {
+          "name": "_ops",
+          "line_number": 672,
+          "arg_count": 1
+        },
+        {
+          "name": "apply",
+          "line_number": 675,
+          "arg_count": 3
+        },
+        {
+          "name": "_get_operation",
+          "line_number": 696,
+          "arg_count": 2
+        },
+        {
+          "name": "__init__",
+          "line_number": 714,
+          "arg_count": 5
+        },
+        {
+          "name": "store_index",
+          "line_number": 724,
+          "arg_count": 4
+        },
+        {
+          "name": "take_index",
+          "line_number": 737,
+          "arg_count": 3
+        },
+        {
+          "name": "insert",
+          "line_number": 750,
+          "arg_count": 2
+        },
+        {
+          "name": "remove",
+          "line_number": 756,
+          "arg_count": 2
+        },
+        {
+          "name": "iter_from",
+          "line_number": 762,
+          "arg_count": 2
+        },
+        {
+          "name": "__iter__",
+          "line_number": 769,
+          "arg_count": 1
+        },
+        {
+          "name": "execute",
+          "line_number": 776,
+          "arg_count": 1
+        },
+        {
+          "name": "_item_added",
+          "line_number": 796,
+          "arg_count": 4
+        },
+        {
+          "name": "_item_removed",
+          "line_number": 821,
+          "arg_count": 4
+        },
+        {
+          "name": "_item_replaced",
+          "line_number": 854,
+          "arg_count": 4
+        },
+        {
+          "name": "_compare_dicts",
+          "line_number": 861,
+          "arg_count": 4
+        },
+        {
+          "name": "_compare_lists",
+          "line_number": 876,
+          "arg_count": 4
+        },
+        {
+          "name": "_compare_values",
+          "line_number": 904,
+          "arg_count": 5
+        }
+      ],
+      "classes": [
+        {
+          "name": "JsonPatchException",
+          "line_number": 80,
+          "method_count": 0
+        },
+        {
+          "name": "InvalidJsonPatch",
+          "line_number": 84,
+          "method_count": 0
+        },
+        {
+          "name": "JsonPatchConflict",
+          "line_number": 88,
+          "method_count": 0
+        },
+        {
+          "name": "JsonPatchTestFailed",
+          "line_number": 97,
+          "method_count": 0
+        },
+        {
+          "name": "PatchOperation",
+          "line_number": 184,
+          "method_count": 8
+        },
+        {
+          "name": "RemoveOperation",
+          "line_number": 238,
+          "method_count": 3
+        },
+        {
+          "name": "AddOperation",
+          "line_number": 272,
+          "method_count": 3
+        },
+        {
+          "name": "ReplaceOperation",
+          "line_number": 324,
+          "method_count": 3
+        },
+        {
+          "name": "MoveOperation",
+          "line_number": 366,
+          "method_count": 6
+        },
+        {
+          "name": "TestOperation",
+          "line_number": 452,
+          "method_count": 1
+        },
+        {
+          "name": "CopyOperation",
+          "line_number": 479,
+          "method_count": 1
+        },
+        {
+          "name": "JsonPatch",
+          "line_number": 504,
+          "method_count": 13
+        },
+        {
+          "name": "DiffBuilder",
+          "line_number": 712,
+          "method_count": 14
+        }
+      ],
+      "imports": [
+        "__future__",
+        "collections",
+        "copy",
+        "functools",
+        "json",
+        "sys",
+        "jsonpointer",
+        "collections.abc",
+        "types",
+        "collections.abc",
+        "collections",
+        "collections"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 12,
+        "exception_handling": 17,
+        "function_length": 0
+      },
+      "potential_issues": []
+    },
+    {
+      "file_path": "langgraph-base\\jsonpointer.py",
+      "relative_path": "langgraph-base\\jsonpointer.py",
+      "lines_of_code": 213,
+      "functions": [
+        {
+          "name": "set_pointer",
+          "line_number": 49,
+          "arg_count": 4
+        },
+        {
+          "name": "resolve_pointer",
+          "line_number": 75,
+          "arg_count": 3
+        },
+        {
+          "name": "pairwise",
+          "line_number": 115,
+          "arg_count": 1
+        },
+        {
+          "name": "escape",
+          "line_number": 343,
+          "arg_count": 1
+        },
+        {
+          "name": "unescape",
+          "line_number": 347,
+          "arg_count": 1
+        },
+        {
+          "name": "__init__",
+          "line_number": 142,
+          "arg_count": 2
+        },
+        {
+          "name": "__repr__",
+          "line_number": 145,
+          "arg_count": 1
+        },
+        {
+          "name": "__init__",
+          "line_number": 158,
+          "arg_count": 2
+        },
+        {
+          "name": "to_last",
+          "line_number": 173,
+          "arg_count": 2
+        },
+        {
+          "name": "resolve",
+          "line_number": 184,
+          "arg_count": 3
+        },
+        {
+          "name": "set",
+          "line_number": 201,
+          "arg_count": 4
+        },
+        {
+          "name": "get_part",
+          "line_number": 222,
+          "arg_count": 3
+        },
+        {
+          "name": "get_parts",
+          "line_number": 247,
+          "arg_count": 1
+        },
+        {
+          "name": "walk",
+          "line_number": 252,
+          "arg_count": 3
+        },
+        {
+          "name": "contains",
+          "line_number": 276,
+          "arg_count": 2
+        },
+        {
+          "name": "__contains__",
+          "line_number": 280,
+          "arg_count": 2
+        },
+        {
+          "name": "join",
+          "line_number": 284,
+          "arg_count": 2
+        },
+        {
+          "name": "__truediv__",
+          "line_number": 297,
+          "arg_count": 2
+        },
+        {
+          "name": "path",
+          "line_number": 301,
+          "arg_count": 1
+        },
+        {
+          "name": "__eq__",
+          "line_number": 309,
+          "arg_count": 2
+        },
+        {
+          "name": "__hash__",
+          "line_number": 322,
+          "arg_count": 1
+        },
+        {
+          "name": "__str__",
+          "line_number": 325,
+          "arg_count": 1
+        },
+        {
+          "name": "__repr__",
+          "line_number": 328,
+          "arg_count": 1
+        },
+        {
+          "name": "from_parts",
+          "line_number": 332,
+          "arg_count": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "JsonPointerException",
+          "line_number": 135,
+          "method_count": 0
+        },
+        {
+          "name": "EndOfList",
+          "line_number": 139,
+          "method_count": 2
+        },
+        {
+          "name": "JsonPointer",
+          "line_number": 150,
+          "method_count": 17
+        }
+      ],
+      "imports": [
+        "copy",
+        "re",
+        "collections.abc",
+        "itertools"
+      ],
+      "complexity_indicators": {
+        "nested_loops": 2,
+        "exception_handling": 4,
+        "function_length": 0
+      },
+      "potential_issues": []
+    }
+  ],
+  "recommendations": [
+    "Address 3 potential code quality issues",
+    "Consider refactoring 3 long functions",
+    "Consider adding docstrings to functions and classes"
+  ]
+}

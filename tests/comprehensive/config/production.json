@@ -1,0 +1,68 @@
+{
+  "environment": "production",
+  "base_url": "https://api.example.com",
+  "frontend_url": "https://app.example.com",
+  "timeout": 120,
+  "max_retries": 3,
+  "parallel_execution": false,
+  "debug_mode": false,
+  "verbose_logging": false,
+  "mock_external_services": false,
+  "performance_thresholds": {
+    "max_response_time": 2.0,
+    "min_success_rate": 95.0,
+    "max_memory_usage": 512,
+    "max_cpu_usage": 70.0,
+    "max_concurrent_users": 200
+  },
+  "test_suites": {
+    "health_check": {
+      "enabled": true,
+      "priority": 1,
+      "timeout": 30,
+      "critical": true
+    },
+    "frontend_tests": {
+      "enabled": false,
+      "priority": 2,
+      "timeout": 60
+    },
+    "api_tests": {
+      "enabled": true,
+      "priority": 3,
+      "timeout": 60,
+      "concurrent_requests": 5
+    },
+    "agent_tests": {
+      "enabled": false,
+      "priority": 4,
+      "timeout": 120
+    },
+    "workflow_tests": {
+      "enabled": false,
+      "priority": 5,
+      "timeout": 180
+    },
+    "integration_tests": {
+      "enabled": true,
+      "priority": 6,
+      "timeout": 300
+    },
+    "performance_tests": {
+      "enabled": true,
+      "priority": 7,
+      "timeout": 600,
+      "load_levels": [5, 10]
+    },
+    "data_tests": {
+      "enabled": true,
+      "priority": 8,
+      "timeout": 60
+    },
+    "error_recovery_tests": {
+      "enabled": false,
+      "priority": 9,
+      "timeout": 120
+    }
+  }
+}

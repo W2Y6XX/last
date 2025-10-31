@@ -1,0 +1,113 @@
+# 硅基流动模型配置
+app:
+  name: "LangGraph多智能体系统"
+  version: "1.0.0"
+  environment: "production"
+  debug: false
+  log_level: "INFO"
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: false
+  workers: 4
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  trusted_hosts:
+    - "localhost"
+    - "127.0.0.1"
+
+security:
+  enable_auth: false
+  enable_rate_limit: true
+  rate_limit_rpm: 100
+  secret_key: "${SECRET_KEY}"
+
+database:
+  url: "sqlite:///./data/app.db"
+  echo: false
+  pool_size: 10
+  max_overflow: 20
+
+redis:
+  url: "redis://localhost:6379/0"
+  max_connections: 10
+
+# 硅基流动LLM配置
+llm:
+  default_provider: "siliconflow"
+  siliconflow:
+    api_key: "sk-wmxxamqdqsmscgrrmweqsqcieowsmqpxqwvenlelrxtkvmms"
+    base_url: "https://api.siliconflow.cn/v1"
+    model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+    temperature: 0.7
+    max_tokens: 2000
+    timeout: 60
+    max_retries: 3
+    retry_delay: 1
+  
+  # 备用配置
+  openai:
+    api_key: "${OPENAI_API_KEY}"
+    model: "gpt-3.5-turbo"
+    temperature: 0.7
+    max_tokens: 1500
+  
+  # 模型参数
+  default_temperature: 0.7
+  default_max_tokens: 2000
+  max_concurrent_requests: 5
+
+workflow:
+  default_execution_mode: "adaptive"
+  default_timeout: 3600
+  max_retries: 3
+  checkpoint:
+    storage: "sqlite"
+    interval: 60
+    cleanup_interval: 86400
+    retention_days: 30
+
+error_handling:
+  enable_self_healing: true
+  circuit_breaker:
+    failure_threshold: 5
+    recovery_timeout: 60
+  max_retry_attempts: 3
+  retry_delay: 2
+
+monitoring:
+  enable_prometheus: true
+  prometheus_port: 9090
+  health_check_interval: 30
+  metrics_collection_interval: 60
+
+performance:
+  optimization_level: "moderate"
+  enable_auto_optimization: true
+  max_cache_size: 10000
+  cache_ttl: 3600
+  max_workers: 6
+  execution_mode: "adaptive"
+  enable_auto_scaling: true
+
+websocket:
+  connection_timeout: 600
+  message_queue_size: 200
+  heartbeat_interval: 60
+  max_connections: 1000
+
+logging:
+  level: "INFO"
+  format: "json"
+  file_rotation: true
+  max_file_size: "100MB"
+  backup_count: 10
+  structured: true
+
+storage:
+  data_dir: "./data"
+  log_dir: "./logs"
+  checkpoint_dir: "./checkpoints"
+  temp_dir: "./temp"
